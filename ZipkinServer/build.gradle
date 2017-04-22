@@ -1,0 +1,41 @@
+buildscript {
+	ext {
+		springBootVersion = '1.5.1.RELEASE'
+	}
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+	}
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+
+jar {
+	baseName = 'ZipkinServer'
+	version = '0.0.1-SNAPSHOT'
+}
+
+sourceCompatibility = 1.8
+
+repositories {
+	mavenCentral()
+}
+
+
+dependencies {
+	compile('org.springframework.boot:spring-boot-starter')
+	compile('org.springframework.boot:spring-boot-starter-web')
+	compile('org.springframework.boot:spring-boot-starter-actuator')
+	compile('io.zipkin.java:zipkin:1.20.1')	  
+    compile('io.zipkin.java:zipkin-server:1.20.1')
+    compile('io.zipkin.java:zipkin-autoconfigure-ui:1.20.1') 
+    compile('io.zipkin.java:zipkin-autoconfigure-storage-cassandra3:1.20.1')   
+    compile('com.datastax.cassandra:cassandra-driver-core:3.1.0')
+    compile('com.datastax.cassandra:cassandra-driver-mapping:3.1.0')   
+    compile('io.zipkin.java:zipkin-autoconfigure-metrics-prometheus:1.20.1')   
+	testCompile('org.springframework.boot:spring-boot-starter-test')
+}

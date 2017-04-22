@@ -12,3 +12,14 @@ gradle-app.setting
 
 # # Work around https://youtrack.jetbrains.com/issue/IDEA-116898
 # gradle/wrapper/gradle-wrapper.properties
+
+.metadata/
+.recommenders/
+Servers/
+
+#.Net Related
+bin/
+EventLogs/
+obj/
+*.sln
+restore.dg

@@ -1,0 +1,52 @@
+buildscript {
+	ext {
+		springBootVersion = '1.5.1.RELEASE'
+	}
+	repositories {
+		mavenCentral()
+	}
+	
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.1.RELEASE")
+	 	
+	}
+
+}
+apply plugin: 'java'
+apply plugin: 'war'
+apply plugin: 'org.springframework.boot'
+
+
+war {
+	baseName = 'mrp_client'
+	
+}
+
+repositories {
+		mavenCentral()
+		
+	}
+
+bootRepackage {
+    mainClass = 'com.ms.mrpclient.AppLauncher'
+}
+	
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+dependencies {
+		compile("org.springframework.boot:spring-boot-starter-web")
+    	providedRuntime("org.springframework.boot:spring-boot-starter-tomcat")
+    	compile group: 'javax.servlet', name: 'jstl', version:'1.2'
+	    compile('io.opentracing:opentracing-api:0.20.10')
+	    compile('io.opentracing.brave:brave-opentracing:0.18.1')	
+        compile('io.zipkin.brave:brave:4.0.6')
+        compile('io.zipkin.reporter:zipkin-reporter')
+        compile('io.zipkin.reporter:zipkin-sender-okhttp3:0.6.12')
+       	compile('org.springframework.cloud:spring-cloud-starter-hystrix:1.2.6.RELEASE')
+		compile('org.springframework.cloud:spring-cloud-starter-hystrix-dashboard:1.2.6.RELEASE')
+	}
+
+
+
+

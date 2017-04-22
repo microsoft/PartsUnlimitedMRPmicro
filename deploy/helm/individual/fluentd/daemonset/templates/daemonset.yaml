@@ -1,0 +1,42 @@
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: fluentddaemon-container
+spec:
+  selector:
+    matchLabels:
+      app: fluentd
+  template:
+    metadata:
+      name: fluentd
+      labels:
+        app: fluentd
+    spec:
+      containers:
+      - name: fluentdjava-agent
+        image: gcr.io/google_containers/fluentd-gcp:1.30
+        env:
+        - name: FLUENTD_ARGS
+          value: -c /etc/fluentd-config/fluentd.conf
+        volumeMounts:
+          - name: kubelet-containers
+            mountPath: "/var/log/containers"
+          - name: docker-containers
+            mountPath: "/var/lib/docker/containers"
+          - name: docker
+            mountPath: "/var/run/docker.sock"
+          - name: config-volume
+            mountPath: /etc/fluentd-config
+      volumes:
+      - name: kubelet-containers
+        hostPath:
+          path: /var/log/containers
+      - name: docker-containers
+        hostPath:
+          path: /var/lib/docker/containers
+      - name: docker
+        hostPath:
+          path: /var/run/docker.sock
+      - name: config-volume
+        configMap:
+          name: fluentddaemon-config

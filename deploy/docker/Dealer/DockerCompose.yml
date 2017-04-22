@@ -1,0 +1,8 @@
+version: "2"
+
+services:
+    pudealer:
+        build: .
+        image:  puregistry-on.azurecr.io/pudealer:latest
+        ports:
+            - "8080"

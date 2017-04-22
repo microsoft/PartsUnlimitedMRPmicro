@@ -1,0 +1,10 @@
+apiVersion: v1
+description: A Helm chart for Parts Unlimited Mrp
+name: partsunlimitedmrp
+version: 0.1.0
+sources:
+- https://dxdevop.visualstudio.com/mrpmicro/_git/code
+maintainers:
+- name: David
+  email: david.tesar@microsoft.com
+engine: gotpl

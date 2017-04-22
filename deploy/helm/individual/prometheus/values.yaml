@@ -1,0 +1,44 @@
+# Default values for promchart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+replicaCount: 1
+prometheus:
+  repository: quay.io/prometheus/prometheus
+  tag: v1.0.1
+  pullPolicy: IfNotPresent
+  name: prometheus
+  retention: 24h
+  path: /home
+  memoryChunk: 500000
+  configFile: /etc/prometheus/prometheus.yml
+  containerPort: 9090
+  configVolumePrometheusMountPath: /etc/prometheus
+  configVolumeAlertRulesMountPath: /etc/prometheus-rules
+  prometheusDataMountPath: /home
+
+prometheusAlertManager:
+  name: alertmanager
+  repository: quay.io/prometheus/alertmanager
+  tag: v0.5.0
+  pullPolicy: IfNotPresent
+  configFile: /etc/prometheus/alertmanager.yml
+
+prometheusNodeExporter:
+  name: nodeexporter
+  repository: quay.io/prometheus/node-exporter
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  name: prometheus
+  type: LoadBalancer
+  externalPort: 9090
+  internalPort: 9090
+resources:
+  limits:
+    cpu: 500m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+

@@ -1,0 +1,57 @@
+buildscript {
+	ext {
+		springBootVersion = '1.5.1.RELEASE'
+	}
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+		classpath ("org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.2.1")
+	}
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'org.sonarqube'
+
+jar {
+	baseName = 'quoteservice'
+	version = '1.0'
+}
+
+sourceCompatibility = 1.8
+
+repositories {
+	mavenCentral()
+	maven { url "https://repo.spring.io/snapshot" }
+	maven { url "https://repo.spring.io/milestone" }
+
+}
+
+
+dependencies {
+    compile('io.opentracing:opentracing-api:0.20.10')
+	compile('org.springframework.cloud:spring-cloud-starter-hystrix')
+	compile('org.springframework.cloud:spring-cloud-starter-hystrix-dashboard')
+	compile('org.springframework.cloud:spring-cloud-starter-sleuth')
+	compile('org.springframework.boot:spring-boot-starter-data-mongodb')
+	compile('org.springframework.boot:spring-boot-starter-web')
+	compile('org.springframework.boot:spring-boot-starter-actuator')
+	compile('io.opentracing.brave:brave-opentracing:0.18.1')	
+    compile('io.zipkin.brave:brave:4.0.6')
+    compile('io.zipkin.reporter:zipkin-reporter')
+    compile('io.zipkin.reporter:zipkin-sender-okhttp3:0.6.12')
+    compile('io.prometheus:simpleclient:0.0.21')
+    compile('io.prometheus:simpleclient_common:0.0.21')
+    compile('io.prometheus:simpleclient_spring_boot:0.0.21')
+	testCompile("junit:junit")
+	testCompile('org.springframework.boot:spring-boot-starter-test')
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:Dalston.BUILD-SNAPSHOT"
+	}
+}

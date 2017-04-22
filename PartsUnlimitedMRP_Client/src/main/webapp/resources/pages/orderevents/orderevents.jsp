@@ -1,0 +1,49 @@
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>orderevents</title>
+
+    <link href="./orderevents.css" rel="stylesheet" />
+    <script src="./orderevents.js"></script>
+</head>
+<body>
+    <div class="orderevents fragment">
+        <section class="page-section" aria-label="Main content" role="main">
+            <!-- Simple template for the ListView instantiation  -->
+            <div class="ordereventsItemTemplate" data-win-control="WinJS.Binding.Template" style="display: none">
+                <div class="listItem ordereventsItem">
+                    <div class="ordereventsItem-Detail">
+                        <h3 data-win-bind="textContent: date"></h3>
+                        <div class="list-item-entry-small" data-win-bind="textContent: comments"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="edittools" data-win-control="Controls.EditTools" data-win-options="{  }"></div>
+
+            <div id="listView"
+                 class="itemListView ordereventsListView"
+                 data-win-control="WinJS.UI.ListView"
+                 data-win-options="{
+                    itemTemplate: select('.ordereventsItemTemplate'),
+                    selectionMode: 'single',
+                    tapBehavior: 'directSelect',
+                    swipeBehavior: 'select',
+                    layout: { type: WinJS.UI.ListLayout }
+                 }">
+            </div>
+
+            <div class="editDetail ordereventsDetail">
+                <label class="inputlabel">Date:</label>
+                <input id="orderevents-date" class="textinput" type="text" data-win-bind="value: date Binding.Mode.twoway" />
+                <br />
+                <label class="inputlabel">Comments:</label>
+                <input id="orderevents-comments" class="textinput-multiline" type="text" data-win-bind="value: comments Binding.Mode.twoway" />
+            </div>
+        </section>
+    </div>
+</body>
+</html>

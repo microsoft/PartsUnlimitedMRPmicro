@@ -1,0 +1,66 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: prometheus-monitoring
+  labels:
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus-monitoring
+  template:
+    metadata:
+      name: prometheus-monitoring
+      labels:
+        app: prometheus-monitoring
+    spec:
+
+      containers:
+      # Prometheus server
+      - name: {{.Values.prometheus.name}}
+        image: {{.Values.prometheus.repository}}:{{.Values.prometheus.tag}}
+        args:
+          - '-storage.local.retention=24h'
+          - '-storage.local.path=/home'
+          - '-storage.local.memory-chunks=500000'
+          - '-config.file=/etc/prometheus/prometheus.yml'
+          - '-alertmanager.url=http://localhost:9093'
+
+        ports:
+        - name: web
+          containerPort: {{.Values.prometheus.containerPort}}
+        volumeMounts:
+        - name: config-volume-prometheus
+          mountPath: {{.Values.prometheus.configVolumePrometheusMountPath}}
+        - name: config-volume-alert-rules
+          mountPath: {{.Values.prometheus.configVolumeAlertRulesMountPath}}
+        - name: prometheus-data
+          mountPath: {{.Values.prometheus.prometheusDataMountPath}}
+
+      #Alert manager
+      - name: {{.Values.prometheusAlertManager.name}}
+        image: {{.Values.prometheusAlertManager.repository}}:{{.Values.prometheusAlertManager.tag}}
+        args:
+          - -config.file={{.Values.prometheusAlertManager.configFile}}
+        volumeMounts:
+        - name: config-volume-alertmanager
+          mountPath: {{.Values.prometheus.configVolumePrometheusMountPath}}
+
+      #Node-exporter
+      - name: {{.Values.prometheusNodeExporter.name}}
+        image: {{.Values.prometheusNodeExporter.repository}}:{{.Values.prometheusNodeExporter.tag}}
+
+
+      # Volumes and config maps
+      volumes:
+      - name: config-volume-prometheus
+        configMap:
+          name: prometheus
+      - name: config-volume-alertmanager
+        configMap:
+          name: prometheus-alertmanager
+      - name: config-volume-alert-rules
+        configMap:
+          name: prometheus-alert-rules
+      - name: prometheus-data
+        emptyDir: {}
