@@ -5,9 +5,9 @@ Parts Unlimited MRP Microservices is a fictional outsourced Manufacturing Resour
 This microservices-based application uses entirely open source software including Docker, Kubernetes, Java, Apache, Hystrix, and MongoDB which creates a web front end and 5 supporting microservices. Click here for the related [Parts Unlimited Website application](http://github.com/microsoft/partsunlimited) 
 or here for the same [Parts Unlimited MRP application](http://aka.ms/pumrplabs) except with everything running on a single Azure Linux VM (IaaS) without a microservices architecture.
 
-To read and learn more about this project, please visit the [documentation website](https://microsoft.github.io/PartsUnlimitedMRPmicro).
+To read and learn more about this project, please visit the [documentation website](https://microsoft.github.io/PartsUnlimitedMRPmicro/).
 
-## Key Features##
+## Key Features
 
 - Entire application is dockerized and runs on Azure Container Service with Kubernetes orchestrator
 - Front end service - runs Apache Tomcat and talks to all microservices services utilizing Hystrix and JSP.
