@@ -61,9 +61,9 @@ This lab uses DocumentDB database as the data store and uses MongoDB connection 
 ## Task 3:  Build the Docker Image and push to Azure Container Registry
 
 The code needs to be containerized using Docker in order to eventually be able to be deployed to a Kubernetes cluster.
-How to dockerize your application is beyond the scope of this post, but check out this article on [dockerizing the Parts Unlimited MRP application](https://microsoft.github.io/PartsUnlimitedMRP/adv/adv-21-Docker.html) and also included the [Dockerfile to be used.](https://dxdevop.visualstudio.com/mrpmicro/_git/code?fullScreen=false&path=%2Fdeploy%2Fdocker%2FOrder%2FDockerfile&version=GBmaster&_a=contents)
+How to dockerize your application is beyond the scope of this post, but check out this article on [dockerizing the Parts Unlimited MRP application](https://microsoft.github.io/PartsUnlimitedMRP/adv/adv-21-Docker.html) and also included the [Dockerfile to be used.](https://github.com/Microsoft/PartsUnlimitedMRPmicro/blob/master/deploy/docker/Order/Dockerfile)
 
-**Step 1.** Clone the Parts Unlimited [repository](https://dxdevop.visualstudio.com/mrpmicro/_git/code).
+**Step 1.** Clone the Parts Unlimited [repository](https://github.com/Microsoft/PartsUnlimitedMRPmicro).
 Login to Docker Registry and Build the Docker Image
 
 Navigate to the Order service Dockerfile on the cloned repository under deploy/docker/Order path, replace the `puregistry-on` name with the provisioned name from the prerequisite steps, and execute below commands:
