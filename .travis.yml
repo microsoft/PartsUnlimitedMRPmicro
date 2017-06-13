@@ -9,13 +9,16 @@ language: java
 services:
   - docker
 
-script:
-  - chmod +x ./OrderSrvc/gradlew
-  - ./OrderSrvc/gradlew build
-
-after_success:
-  - docker build -f ./OrderSrvc/Dockerfile --build-arg VCS_REF=`git rev-parse --short HEAD` --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $DOCKER_ORDERIMAGE:$DOCKER_ORDERTAG .
-  - docker tag $DOCKER_ORDERIMAGE:$DOCKER_ORDERTAG $DOCKER_ORDERIMAGE:latest
-  - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-  - docker push $DOCKER_ORDERIMAGE:$DOCKER_ORDERTAG
-  - docker push $DOCKER_ORDERIMAGE:latest
+jobs:
+  include:
+  - stage: build order service
+    script:
+    - chmod +x ./OrderSrvc/gradlew
+    - ./OrderSrvc/gradlew build
+  - stage: docker build and push order service image
+    script:
+    - docker build -f ./OrderSrvc/Dockerfile --build-arg VCS_REF=`git rev-parse --short HEAD` --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $DOCKER_ORDERIMAGE:$DOCKER_ORDERTAG .
+    - docker tag $DOCKER_ORDERIMAGE:$DOCKER_ORDERTAG $DOCKER_ORDERIMAGE:latest
+    - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+    - docker push $DOCKER_ORDERIMAGE:$DOCKER_ORDERTAG
+    - docker push $DOCKER_ORDERIMAGE:latest
