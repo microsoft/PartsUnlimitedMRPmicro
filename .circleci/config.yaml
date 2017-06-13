@@ -1,0 +1,44 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: gradle:alpine
+
+    environment:
+      TEST_REPORTS: /tmp/test-reports
+      DOCKER_ORDERIMAGE: microsoft/pumrp-order
+      DOCKER_ORDERTAG: 1.0.0
+      ORDER_PORT: 8080
+
+    working_directory: /
+
+    branches:
+      ignore:
+        - develop
+        - /feature-.*/
+
+    steps:
+      - checkout
+
+      # Build Order Service
+      - run: |
+          cd OrderSvrc &&
+          gradle build
+
+      - run:
+          command: |
+            set -xu
+            mkdir -p ${TEST_REPORTS}
+            cp ./build/reports/tests/* ${TEST_REPORTS}
+
+      - run: |
+          cp /libs/*.jar /tmp/artifacts
+
+      # Save artifacts
+      - store_artifacts:
+          path: /tmp/artifacts
+          destination: build
+
+      # Upload test results
+      - store_test_results:
+          path: /tmp/test-reports
