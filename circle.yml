@@ -10,7 +10,7 @@ jobs:
       DOCKER_ORDERTAG: 1.0.0
       ORDER_PORT: 8080
 
-    working_directory: /project
+    working_directory: ~
 
     branches:
       ignore:
