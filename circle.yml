@@ -22,7 +22,7 @@ jobs:
 
       # Build Order Service
       - run: |
-          cd OrderSvrc &&
+          cd ~/circleci/OrderSvrc &&
           gradle build
 
       - run:
