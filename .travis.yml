@@ -10,10 +10,10 @@ services:
   - docker
 
 script:
-  - /OrderSrvc/gradle check
+  - ./OrderSrvc/gradlew build
 
 after_success:
-  - docker build --build-arg VCS_REF=`git rev-parse --short HEAD` --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $DOCKER_ORDERIMAGE:$DOCKER_ORDERTAG .
+  - docker build -f ./OrderSrvc/Dockerfile --build-arg VCS_REF=`git rev-parse --short HEAD` --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $DOCKER_ORDERIMAGE:$DOCKER_ORDERTAG .
   - docker tag $DOCKER_ORDERIMAGE:$DOCKER_ORDERTAG $DOCKER_ORDERIMAGE:latest
   - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
   - docker push $DOCKER_ORDERIMAGE:$DOCKER_ORDERTAG
