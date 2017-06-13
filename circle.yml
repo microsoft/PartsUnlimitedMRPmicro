@@ -25,11 +25,11 @@ jobs:
           cd OrderSrvc &&
           gradle build
       
-      # Put test files to default CircleCI location
-      - test:
-         post:
-           - mkdir -p $TEST_REPORTS/junit/
-           - find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
+    # Put test files to default CircleCI location
+    test:
+      post:
+        - mkdir -p $CIRCLE_TEST_REPORTS/junit/
+        - find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
 
       #- run: |
       #    cp OrderSrvc/build/libs/*.jar /tmp/artifacts
