@@ -18,7 +18,7 @@ jobs:
     script:
     - chmod +x ./OrderSrvc/gradlew
     - ./OrderSrvc/gradlew build
-    - docker build -f ./OrderSrvc/Dockerfile --build-arg port=$ORDER_PORT VCS_REF=`git rev-parse --short HEAD` --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $DOCKER_ORDERIMAGE:$DOCKER_ORDERTAG .
+    - docker build -f ./OrderSrvc/Dockerfile --build-arg port=$ORDER_PORT --build-arg VCS_REF=`git rev-parse --short HEAD` --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $DOCKER_ORDERIMAGE:$DOCKER_ORDERTAG .
     - docker tag $DOCKER_ORDERIMAGE:$DOCKER_ORDERTAG $DOCKER_ORDERIMAGE:latest
     - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
     - docker push $DOCKER_ORDERIMAGE:$DOCKER_ORDERTAG
@@ -27,7 +27,7 @@ jobs:
     script:
     - chmod +x ./CatalogSrvc/gradlew
     - ./CatalogSrvc/gradlew build
-    - docker build -f ./CatalogSrvc/Dockerfile --build-arg port=$CATALOG_PORT VCS_REF=`git rev-parse --short HEAD` --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $DOCKER_ORDERIMAGE:$DOCKER_ORDERTAG .
+    - docker build -f ./CatalogSrvc/Dockerfile --build-arg port=$CATALOG_PORT --build-arg VCS_REF=`git rev-parse --short HEAD` --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $DOCKER_ORDERIMAGE:$DOCKER_ORDERTAG .
     - docker tag $DOCKER_CATALOGIMAGE:$DOCKER_ORDERTAG $DOCKER_CATALOGIMAGE:latest
     - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
     - docker push DOCKER_CATALOGIMAGE:$DOCKER_ORDERTAG
