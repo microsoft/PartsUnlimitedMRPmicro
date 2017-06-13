@@ -22,11 +22,8 @@ jobs:
 
       # Build Order Service
       - run: |
-          ls ~ &&
-          ls ~/circleci &&
-          ls $BASH_ENV &&
           ls $CIRCLE_ENV &&
-          cd ~/circleci/OrderSvrc &&
+          cd ~/circleci/OrderSrvc &&
           gradle build
 
       - run:
