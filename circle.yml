@@ -22,14 +22,14 @@ jobs:
 
       # Build Order Service
       - run: |
-          cd ~/circleci/OrderSrvc &&
+          cd OrderSrvc &&
           gradle build
 
       - run:
           command: |
             set -xu
             mkdir -p ${TEST_REPORTS}
-            cp OrderSrvc/build/reports/tests/* ${TEST_REPORTS}
+            cp -r OrderSrvc/build/reports/tests/* ${TEST_REPORTS}
 
       - run: |
           cp OrderSrvc/build/libs/*.jar /tmp/artifacts
