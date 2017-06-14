@@ -18,8 +18,8 @@ RUN mkdir -p /usr/local/app
 
 WORKDIR /usr/local/app
 
-COPY * /usr/local/app/
+COPY OrderSrvc/build/libs/*.jar /usr/local/app/
 
 EXPOSE $expose_port
 
-ENTRYPOINT java -Dspring.data.mongodb.uri=$mongo_conn -jar -Dserver.port=$expose_port ord*.jar
+ENTRYPOINT java -Dspring.data.mongodb.uri=$mongo_conn -jar -Dserver.port=$expose_port *.jar
