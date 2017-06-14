@@ -7,7 +7,7 @@ jobs:
     environment:
       TEST_REPORTS: /tmp/test-reports
       DOCKER_ORDERIMAGE: microsoft/pumrp-order
-      DOCKER_ORDERTAG: 1.0.0
+      DOCKER_ORDERTAG: 1.0
       ORDER_PORT: 8080
 
     working_directory: ~/circleci
@@ -25,18 +25,18 @@ jobs:
       - run:
           name: Build Order Service
           command: |
-          cd OrderSrvc &&
-          gradle build
+            cd OrderSrvc &&
+            gradle build
 
       - run:
           name: Copy Order Service Test Results
           command: |
-          set -xu
-          mkdir -p $TEST_REPORTS/junit/
-          find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} $TEST_REPORTS/junit/ \;
-          #This dir contains html test output
-          #mkdir -p ${TEST_REPORTS}/order
-          #cp -r OrderSrvc/build/reports/tests/* ${TEST_REPORTS}/order
+            set -xu
+            mkdir -p $TEST_REPORTS/junit/
+            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} $TEST_REPORTS/junit/ \;
+            #This dir contains html test output
+            #mkdir -p ${TEST_REPORTS}/order
+            #cp -r OrderSrvc/build/reports/tests/* ${TEST_REPORTS}/order
 
       #- run: |
       #    cp OrderSrvc/build/libs/*.jar /tmp/artifacts
@@ -51,8 +51,9 @@ jobs:
           path: /tmp/test-reports/junit/
 
       - run:
-          name: Build Order Service Docker Image
+          name: Build and Push Order Service Docker Image
           command: |
-          docker build -f OrderSrvc/Dockerfile --build-arg port=$ORDER_PORT --build-arg VCS_REF=`git rev-parse --short HEAD` --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $DOCKER_ORDERIMAGE:$DOCKER_ORDERTAG .
-          docker login -u $DOCKER_USER -p $DOCKER_PASS
-          docker push $DOCKER_ORDERIMAGE:$DOCKER_ORDERTAG
+            TAG=$DOCKER_ORDERTAG.$CIRCLE_BUILD_NUM
+            docker build -f OrderSrvc/Dockerfile --build-arg port=$ORDER_PORT --build-arg VCS_REF=`git rev-parse --short HEAD` --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $DOCKER_ORDERIMAGE:$TAG .
+            docker login -u $DOCKER_USER -p $DOCKER_PASS
+            docker push $DOCKER_ORDERIMAGE:$TAG
