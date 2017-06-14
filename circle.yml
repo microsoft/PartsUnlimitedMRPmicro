@@ -28,8 +28,8 @@ jobs:
       # Copy Test artifacts to test storage location
       - run: |
           set -xu
-          mkdir -p $CIRCLE_TEST_REPORTS/junit/
-          find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
+          mkdir -p $TEST_REPORTS/junit/
+          find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} $TEST_REPORTS/junit/ \;
           #This dir contains html test output
           #mkdir -p ${TEST_REPORTS}
           #cp -r OrderSrvc/build/reports/tests/* ${TEST_REPORTS}      
@@ -44,4 +44,4 @@ jobs:
 
       # Upload test results
       - store_test_results:
-          path: $CIRCLE_TEST_REPORTS/junit/
+          path: $TEST_REPORTS/junit/
