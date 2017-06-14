@@ -44,4 +44,4 @@ jobs:
 
       # Upload test results
       - store_test_results:
-          path: $TEST_REPORTS/junit/
+          path: /tmp/test-reports/junit/
