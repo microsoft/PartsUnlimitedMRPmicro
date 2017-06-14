@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: gradle:alpine
+      - image: gradle:3.5-jdk8-alpine
 
     environment:
       TEST_REPORTS: /tmp/test-reports
@@ -20,19 +20,23 @@ jobs:
     steps:
       - checkout
 
-      # Build Order Service
-      - run: |
+      - setup_remote_docker
+
+      - run:
+          name: Build Order Service
+          command: |
           cd OrderSrvc &&
           gradle build
 
-      # Copy Test artifacts to test storage location
-      - run: |
+      - run:
+          name: Copy Order Service Test Results
+          command: |
           set -xu
           mkdir -p $TEST_REPORTS/junit/
           find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} $TEST_REPORTS/junit/ \;
           #This dir contains html test output
-          #mkdir -p ${TEST_REPORTS}
-          #cp -r OrderSrvc/build/reports/tests/* ${TEST_REPORTS}      
+          #mkdir -p ${TEST_REPORTS}/order
+          #cp -r OrderSrvc/build/reports/tests/* ${TEST_REPORTS}/order
 
       #- run: |
       #    cp OrderSrvc/build/libs/*.jar /tmp/artifacts
@@ -45,3 +49,10 @@ jobs:
       # Upload test results
       - store_test_results:
           path: /tmp/test-reports/junit/
+
+      - run:
+          name: Build Order Service Docker Image
+          command: |
+          docker build -f OrderSrvc/Dockerfile --build-arg port=$ORDER_PORT --build-arg VCS_REF=`git rev-parse --short HEAD` --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $DOCKER_ORDERIMAGE:$DOCKER_ORDERTAG .
+          docker login -u $DOCKER_USER -p $DOCKER_PASS
+          docker push $DOCKER_ORDERIMAGE:$DOCKER_ORDERTAG
