@@ -24,12 +24,15 @@ jobs:
       - run: |
           cd OrderSrvc &&
           gradle build
-      
-    # Put test files to default CircleCI location
-    test:
-      post:
-        - mkdir -p $CIRCLE_TEST_REPORTS/junit/
-        - find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
+
+       # Copy Test artifacts to test storage location
+       - run: |
+          set -xu
+          mkdir -p $CIRCLE_TEST_REPORTS/junit/
+          find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
+          #This dir contains html test output
+          #mkdir -p ${TEST_REPORTS}
+          #cp -r OrderSrvc/build/reports/tests/* ${TEST_REPORTS}      
 
       #- run: |
       #    cp OrderSrvc/build/libs/*.jar /tmp/artifacts
@@ -40,5 +43,5 @@ jobs:
       #    destination: build
 
       # Upload test results
-      #- store_test_results:
-      #    path: /tmp/test-reports
+      - store_test_results:
+          path: $CIRCLE_TEST_REPORTS/junit/
