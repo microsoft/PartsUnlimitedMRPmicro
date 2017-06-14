@@ -2,6 +2,7 @@ version: 2
 jobs:
   build:
     docker:
+      - image: docker:17.05
       - image: gradle:3.5-jdk8-alpine
 
     environment:
@@ -54,6 +55,7 @@ jobs:
           name: Build and Push Order Service Docker Image
           command: |
             TAG=$DOCKER_ORDERTAG.$CIRCLE_BUILD_NUM
-            docker build -f OrderSrvc/Dockerfile --build-arg port=$ORDER_PORT --build-arg VCS_REF=`git rev-parse --short HEAD` --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $DOCKER_ORDERIMAGE:$TAG .
+            VCS_REF=`git rev-parse --short HEAD`
+            docker build -f OrderSrvc/Dockerfile --build-arg port=$ORDER_PORT --build-arg $VCS_REF --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $DOCKER_ORDERIMAGE:$TAG .
             docker login -u $DOCKER_USER -p $DOCKER_PASS
             docker push $DOCKER_ORDERIMAGE:$TAG
