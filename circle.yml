@@ -240,6 +240,51 @@ jobs:
             #docker login -u $DOCKER_USER -p $DOCKER_PASS
             #docker push $DOCKER_IMAGE:$TAG
 
+  client:
+    docker:
+      #https://github.com/circleci/circleci-images/blob/master/openjdk/generate-images
+      - image: circleci/openjdk:8-jdk
+
+    environment:
+      DOCKER_IMAGE: microsoft/pumrp-client
+      DOCKER_TAG: 1.0.0
+      SERVICE_PORT: 8080
+      GIT_FOLDER: PartsUnlimitedMRP_Client
+
+    working_directory: ~/circleci
+
+    branches:
+      ignore:
+        - develop
+        - /feature-.*/
+
+    steps:
+      - checkout
+
+      - setup_remote_docker
+
+      - run:
+          name: Build Service
+          command: |
+            cd $GIT_FOLDER &&
+            gradle build
+
+      #- run: |
+      #    cp $GIT_FOLDER/build/libs/*.jar /tmp/artifacts
+
+      # Save artifacts
+      #- store_artifacts:
+      #    path: /tmp/artifacts
+      #    destination: build
+
+      - run:
+          name: Build and Push Service Docker Image
+          command: |
+            TAG=$DOCKER_TAG.$CIRCLE_BUILD_NUM
+            docker build -f $GIT_FOLDER/Dockerfile --build-arg port=$SERVICE_PORT --build-arg VCS_REF=`git rev-parse --short HEAD` --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $DOCKER_IMAGE:$TAG .
+            #docker login -u $DOCKER_USER -p $DOCKER_PASS
+            #docker push $DOCKER_IMAGE:$TAG
+
 workflows:
   version: 2
   build-services-in-parallel:
