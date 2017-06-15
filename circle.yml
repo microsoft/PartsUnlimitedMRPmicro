@@ -293,3 +293,4 @@ workflows:
       - quoteservice
       - shipmentservice
       - catalogservice
+      - client
