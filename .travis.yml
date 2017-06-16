@@ -1,3 +1,4 @@
+# We are using CirceCI (see /.circleci/config.yml), but this does work so leaving it for reference
 sudo: required
 
 env:
