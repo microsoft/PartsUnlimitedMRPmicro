@@ -1,28 +1,26 @@
 version: 2
+defaults: &defaults
+  working_directory: /tmp/circleci
+  
+  environment:
+    TEST_REPORTS: /tmp/test-reports
+
+  branches:
+  ignore:
+    - develop
+    - /feature-.*/
+
 jobs:
   orderservice:
+    <<: *defaults
     docker:
-      #https://github.com/circleci/circleci-images/blob/master/openjdk/generate-images
-      - image: circleci/openjdk:8-jdk
+      - image: gradle:3.5-jdk8
 
     environment:
-      TEST_REPORTS: /tmp/test-reports
-      DOCKER_IMAGE: microsoft/pumrp-order
-      DOCKER_TAG: 1.0.0
-      SERVICE_PORT: 8080
       GIT_FOLDER: OrderSrvc
-
-    working_directory: ~/circleci
-
-    branches:
-      ignore:
-        - develop
-        - /feature-.*/
 
     steps:
       - checkout
-
-      - setup_remote_docker
 
       - run:
           name: Build Service
@@ -38,10 +36,10 @@ jobs:
             find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} $TEST_REPORTS/junit/ \;
             #This dir contains html test output
             #mkdir -p ${TEST_REPORTS}/order
-            #cp -r OrderSrvc/build/reports/tests/* ${TEST_REPORTS}/order
+            #cp -r $GIT_FOLDER/build/reports/tests/* ${TEST_REPORTS}/order
 
       #- run: |
-      #    cp OrderSrvc/build/libs/*.jar /tmp/artifacts
+      #    cp $GIT_FOLDER/build/libs/*.jar /tmp/artifacts
 
       # Save artifacts
       #- store_artifacts:
@@ -52,6 +50,25 @@ jobs:
       - store_test_results:
           path: /tmp/test-reports/junit/
 
+      - persist_to_workspace:
+          root: OrderSrvc
+
+  orderservicedocker:
+    <<: *defaults
+    docker:
+      - image: circleci/golang
+
+    environment:
+      DOCKER_IMAGE: microsoft/pumrp-order
+      DOCKER_TAG: 1.0.0
+      SERVICE_PORT: 8080
+
+    steps:
+      - setup_remote_docker
+
+      - attach_workspace:
+          at: /tmp/circleci/OrderService
+
       - run:
           name: Build and Push Service Docker Image
           command: |
@@ -61,15 +78,14 @@ jobs:
             #docker push $DOCKER_IMAGE:$TAG
 
   quoteservice:
+    <<: *defaults
     docker:
-      #https://github.com/circleci/circleci-images/blob/master/openjdk/generate-images
-      - image: circleci/openjdk:8-jdk
+      - image: gradle:3.5-jdk8
 
     environment:
-      TEST_REPORTS: /tmp/test-reports
-      DOCKER_IMAGE: microsoft/pumrp-quote
+      DOCKER_IMAGE: microsoft/pumrp-order
       DOCKER_TAG: 1.0.0
-      SERVICE_PORT: 8080
+      SERVICE_PORT: 8080  
       GIT_FOLDER: QuoteSrvc
 
     working_directory: ~/circleci
@@ -290,7 +306,10 @@ workflows:
   build-services-in-parallel:
     jobs:
       - orderservice
-      - quoteservice
-      - shipmentservice
-      - catalogservice
+      - orderservicedocker:
+          requires:
+            - orderservice
+      #- quoteservice
+      #- shipmentservice
+      #- catalogservice
       - client
