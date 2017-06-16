@@ -14,6 +14,16 @@ jobs:
 
     steps:
       - checkout
+      - run:
+          name: Test conditional PR for steps
+          command: |
+            echo "PR number: " $CIRCLE_PR_NUMBER
+            echo "Branch: " $CIRCLE_BRANCH
+            if [[$CIRCLE_PR_NUMBER]]; then 
+              echo "execute stuff here"
+            else
+              echo "didn't execute"
+            fi
 
       - run:
           name: Build Service
