@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using DealerApi.Models;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
-
+using Microsoft.Extensions.Configuration;
 
 namespace DealerApi.Controllers
 {
@@ -13,11 +13,12 @@ namespace DealerApi.Controllers
     public class DealerController : Controller
     {
         readonly ILogger<DealerController> _log;
-        MongoDealersRepository objds = new MongoDealersRepository();
+        MongoDealersRepository objds;
 
-        public DealerController(ILogger<DealerController> log)
+        public DealerController(ILogger<DealerController> log,IConfiguration iconfiguration)
         {
             _log = log;
+            objds = new MongoDealersRepository(iconfiguration.GetValue<string>("Data:ConnectionString"));
         }
 
         /// <summary>
