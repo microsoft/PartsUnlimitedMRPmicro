@@ -270,6 +270,52 @@ jobs:
             #docker login -u $DOCKER_USER -p $DOCKER_PASS
             #docker push $DOCKER_IMAGE:$TAG
 
+  dealerservice:
+    <<: *defaults
+    docker:
+      - image: microsoft/dotnet:1.1.2-sdk
+
+    environment:
+      SERVICE_PORT: 8080
+      GIT_FOLDER: DealerService
+
+    steps:
+      - checkout
+
+      - run:
+          name: Build Service
+          command: |
+            cd $GIT_FOLDER
+            dotnet restore
+            dotnet build
+
+      - persist_to_workspace:
+          root: DealerService
+
+  dockerbuild:
+    <<: *defaults
+    docker:
+      - image: circleci/golang
+
+    environment:
+      DOCKER_IMAGE: microsoft/pumrp-dealer
+      DOCKER_TAG: 1.0.0
+
+    steps:
+      - setup_remote_docker
+
+      - attach_workspace:
+          at: /tmp/circleci/DealerService
+
+      - run:
+          name: Build and Push Service Docker Image
+          command: |
+            ls /tmp/circleci
+            TAG=$DOCKER_TAG.$CIRCLE_BUILD_NUM
+            docker build -f ./DealerService/Dockerfile -t $DOCKER_IMAGE:$TAG .
+            #docker login -u $DOCKER_USER -p $DOCKER_PASS
+            #docker push $DOCKER_IMAGE:$TAG
+
 workflows:
   version: 2
   build-services-in-parallel:
