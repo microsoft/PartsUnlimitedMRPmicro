@@ -2,11 +2,6 @@ version: 2
 defaults: &defaults
   working_directory: /tmp/circleci
 
-  branches:
-  ignore:
-    - develop
-    - /feature-.*/
-
 jobs:
   orderservice:
     <<: *defaults
@@ -36,15 +31,15 @@ jobs:
             #mkdir -p ${TEST_REPORTS}/order
             #cp -r $GIT_FOLDER/build/reports/tests/* ${TEST_REPORTS}/order
 
+      # Optionally Save and store jar build artifacts
       #- run: |
       #    cp $GIT_FOLDER/build/libs/*.jar /tmp/artifacts
 
-      # Save artifacts
       #- store_artifacts:
       #    path: /tmp/artifacts
       #    destination: build
 
-      # Upload test results
+      # Upload test results to CircleCI
       - store_test_results:
           path: /tmp/test-reports/junit/
 
@@ -86,13 +81,6 @@ jobs:
       DOCKER_TAG: 1.0.0
       SERVICE_PORT: 8080  
       GIT_FOLDER: QuoteSrvc
-
-    working_directory: ~/circleci
-
-    branches:
-      ignore:
-        - develop
-        - /feature-.*/
 
     steps:
       - checkout
@@ -136,6 +124,7 @@ jobs:
             #docker push $DOCKER_IMAGE:$TAG
 
   shipmentservice:
+    <<: *defaults
     docker:
       #https://github.com/circleci/circleci-images/blob/master/openjdk/generate-images
       - image: circleci/openjdk:8-jdk
@@ -146,13 +135,6 @@ jobs:
       DOCKER_TAG: 1.0.0
       SERVICE_PORT: 8080
       GIT_FOLDER: ShipmentSrvc
-
-    working_directory: ~/circleci
-
-    branches:
-      ignore:
-        - develop
-        - /feature-.*/
 
     steps:
       - checkout
@@ -196,6 +178,7 @@ jobs:
             #docker push $DOCKER_IMAGE:$TAG
 
   catalogservice:
+    <<: *defaults
     docker:
       #https://github.com/circleci/circleci-images/blob/master/openjdk/generate-images
       - image: circleci/openjdk:8-jdk
@@ -206,13 +189,6 @@ jobs:
       DOCKER_TAG: 1.0.0
       SERVICE_PORT: 8080
       GIT_FOLDER: CatalogSrvc
-
-    working_directory: ~/circleci
-
-    branches:
-      ignore:
-        - develop
-        - /feature-.*/
 
     steps:
       - checkout
@@ -256,6 +232,7 @@ jobs:
             #docker push $DOCKER_IMAGE:$TAG
 
   client:
+    <<: *defaults
     docker:
       #https://github.com/circleci/circleci-images/blob/master/openjdk/generate-images
       - image: circleci/openjdk:8-jdk
@@ -265,13 +242,6 @@ jobs:
       DOCKER_TAG: 1.0.0
       SERVICE_PORT: 8080
       GIT_FOLDER: PartsUnlimitedMRP_Client
-
-    working_directory: ~/circleci
-
-    branches:
-      ignore:
-        - develop
-        - /feature-.*/
 
     steps:
       - checkout
@@ -308,6 +278,9 @@ workflows:
       - orderservicedocker:
           requires:
             - orderservice
+          filters:
+            branches:
+              ignore: dev
       #- quoteservice
       #- shipmentservice
       #- catalogservice
