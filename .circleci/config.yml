@@ -17,12 +17,11 @@ jobs:
       - run:
           name: Test conditional PR for steps
           command: |
-            echo "PR number: " $CIRCLE_PR_NUMBER
             echo "Branch: " $CIRCLE_BRANCH
-            if [[$CIRCLE_PR_NUMBER]]; then 
-              echo "execute stuff here"
+            if [[ `echo $CIRCLE_BRANCH | grep -c "pull"` > 0]]; then 
+              echo "Skip Docker push image to repo since it is a PR."
             else
-              echo "didn't execute"
+              echo "Not a PR so now push image."
             fi
 
       - run:
