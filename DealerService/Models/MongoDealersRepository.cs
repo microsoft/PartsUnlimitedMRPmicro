@@ -11,20 +11,20 @@ namespace DealerApi.Models
     {
 
         MongoClient _client;
-        MongoServer _server;
-        MongoDatabase _db;
+        IMongoDatabase _db;
 
-        public MongoDealersRepository()
+        public MongoDealersRepository(string connectionstring)
         {
-            _client = new MongoClient("mongodb://holdevopsmongodb:8jVuAUdL5wDZutQ5r1FQR0zUEi276FpjdcZjOG6LIDX0DgKuTvOHForS0icrPjGmOv8Kfh60qNi0RWLDBKb80Q==@holdevopsmongodb.documents.azure.com:10250/?ssl=true");
-            _server = _client.GetServer();
-            _db = _server.GetDatabase("ordering");
+            _client = new MongoClient(connectionstring);
+            _db = _client.GetDatabase("ordering");
+
         }
 
         public Dealer getDealer(String name)
         {
             var res = Query<Dealer>.EQ(p => p.name, name);
-            var existing = _db.GetCollection<Dealer>("Dealer").FindOne(res);
+            //var existing = _db.GetCollection<Dealer>("Dealer").FindOne(res);
+            var existing = _db.GetCollection<Dealer>("Dealer").FindAsync(p => p.name == name).Result.First();
 
             if (existing != null)
             {
@@ -37,9 +37,9 @@ namespace DealerApi.Models
         {
             List<Dealer> result = new List<Dealer>();
 
-            var found = _db.GetCollection<Dealer>("Dealer").FindAll();
+            var found = _db.GetCollection<Dealer>("Dealer").Find(_ => true).ToListAsync();
 
-            foreach (Dealer dealer in found)
+            foreach (Dealer dealer in found.Result)
             {
                 dealer.timestamp = dealer.Id.Timestamp;
                 dealer.machine = dealer.Id.Machine;
@@ -53,29 +53,42 @@ namespace DealerApi.Models
 
         public bool upsertDealer(Dealer dealer, string eTag)
         {
-            var res = Query<Dealer>.EQ(pd => pd.name, dealer.name);
-            var operation = Update<Dealer>.Replace(dealer);
-            Dealer mongoDealer = new Dealer();
-            var existing = _db.GetCollection<Dealer>("Dealer").FindOne(res);
+            try
+            {
+                var res = Query<Dealer>.EQ(pd => pd.name, dealer.name);
+                var operation = Update<Dealer>.Replace(dealer);
+                Dealer mongoDealer = new Dealer();
+                var existing = _db.GetCollection<Dealer>("Dealer").FindAsync(p => p.name == dealer.name).Result.First();
 
-            if (existing != null)
-            {
-                _db.GetCollection<Dealer>("Dealer").Update(res, operation);
+                if (existing != null)
+                {
+                    _db.GetCollection<Dealer>("Dealer").ReplaceOne(p => p.name == dealer.name, dealer);
+
+                }
+                else
+                {
+                    _db.GetCollection<Dealer>("Dealer").InsertOne(dealer);
+                }
+
+                return existing != null;
             }
-            else
+            catch (Exception e)
             {
-                _db.GetCollection<Dealer>("Dealer").Save(dealer);
+                if (e.Message.Contains("Sequence contains no elements"))
+                {
+                    _db.GetCollection<Dealer>("Dealer").InsertOne(dealer);
+
+                }
+                return true;
             }
-            
-            return existing != null;
         }
 
         public Boolean removeDealer(String name, String eTag)
         {
             var res = Query<Dealer>.EQ(e => e.name, name);
-            var operation = _db.GetCollection<Dealer>("Dealer").Remove(res);
+            var operation = _db.GetCollection<Dealer>("Dealer").FindOneAndDelete(p => p.name == name);
             return true;
         }
-        
+
     }
 }
