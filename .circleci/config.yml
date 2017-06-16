@@ -1,0 +1,333 @@
+version: 2
+defaults: &defaults
+  working_directory: /tmp/circleci
+
+jobs:
+  orderservice:
+    <<: *defaults
+    docker:
+      - image: gradle:3.5-jdk8
+
+    environment:
+      GIT_FOLDER: OrderSrvc
+      TEST_REPORTS: /tmp/test-reports
+
+    steps:
+      - checkout
+
+      - run:
+          name: Build Service
+          command: |
+            cd $GIT_FOLDER &&
+            gradle build
+
+      - run:
+          name: Copy Service Test Results
+          command: |
+            set -xu
+            mkdir -p $TEST_REPORTS/junit/
+            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} $TEST_REPORTS/junit/ \;
+            #This dir contains html test output
+            #mkdir -p ${TEST_REPORTS}/order
+            #cp -r $GIT_FOLDER/build/reports/tests/* ${TEST_REPORTS}/order
+
+      # Optionally Save and store jar build artifacts
+      #- run: |
+      #    cp $GIT_FOLDER/build/libs/*.jar /tmp/artifacts
+
+      #- store_artifacts:
+      #    path: /tmp/artifacts
+      #    destination: build
+
+      # Upload test results to CircleCI
+      - store_test_results:
+          path: /tmp/test-reports/junit/
+
+      - persist_to_workspace:
+          root: OrderSrvc
+
+  orderservicedocker:
+    <<: *defaults
+    docker:
+      - image: circleci/golang
+
+    environment:
+      DOCKER_IMAGE: microsoft/pumrp-order
+      DOCKER_TAG: 1.0.0
+      SERVICE_PORT: 8080
+      GIT_FOLDER: OrderSrvc
+
+    steps:
+      - setup_remote_docker
+
+      - attach_workspace:
+          at: /tmp/circleci/OrderSrvc
+
+      - run:
+          name: Build and Push Service Docker Image
+          command: |
+            TAG=$DOCKER_TAG.$CIRCLE_BUILD_NUM
+            docker build -f ./$GIT_FOLDER/Dockerfile --build-arg port=$SERVICE_PORT --build-arg mongo_connection=mongodb://localhost/$GIT_FOLDER --build-arg VCS_REF=`git rev-parse --short HEAD` --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $DOCKER_IMAGE:$TAG .
+            #docker login -u $DOCKER_USER -p $DOCKER_PASS
+            #docker push $DOCKER_IMAGE:$TAG
+
+  quoteservice:
+    <<: *defaults
+    docker:
+      - image: gradle:3.5-jdk8
+
+    environment:
+      DOCKER_IMAGE: microsoft/pumrp-order
+      DOCKER_TAG: 1.0.0
+      SERVICE_PORT: 8080  
+      GIT_FOLDER: QuoteSrvc
+
+    steps:
+      - checkout
+
+      - setup_remote_docker
+
+      - run:
+          name: Build Service
+          command: |
+            cd $GIT_FOLDER &&
+            gradle build
+
+      - run:
+          name: Copy Service Test Results
+          command: |
+            set -xu
+            mkdir -p $TEST_REPORTS/junit/
+            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} $TEST_REPORTS/junit/ \;
+            #This dir contains html test output
+            #mkdir -p ${TEST_REPORTS}/order
+            #cp -r $GIT_FOLDER/build/reports/tests/* ${TEST_REPORTS}/order
+
+      #- run: |
+      #    cp $GIT_FOLDER/build/libs/*.jar /tmp/artifacts
+
+      # Save artifacts
+      #- store_artifacts:
+      #    path: /tmp/artifacts
+      #    destination: build
+
+      # Upload test results
+      - store_test_results:
+          path: /tmp/test-reports/junit/
+
+      - run:
+          name: Build and Push Service Docker Image
+          command: |
+            TAG=$DOCKER_TAG.$CIRCLE_BUILD_NUM
+            docker build -f $GIT_FOLDER/Dockerfile --build-arg port=$SERVICE_PORT --build-arg mongo_connection=mongodb://localhost/$GIT_FOLDER --build-arg VCS_REF=`git rev-parse --short HEAD` --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $DOCKER_IMAGE:$TAG .
+            #docker login -u $DOCKER_USER -p $DOCKER_PASS
+            #docker push $DOCKER_IMAGE:$TAG
+
+  shipmentservice:
+    <<: *defaults
+    docker:
+      #https://github.com/circleci/circleci-images/blob/master/openjdk/generate-images
+      - image: circleci/openjdk:8-jdk
+
+    environment:
+      TEST_REPORTS: /tmp/test-reports
+      DOCKER_IMAGE: microsoft/pumrp-shipment
+      DOCKER_TAG: 1.0.0
+      SERVICE_PORT: 8080
+      GIT_FOLDER: ShipmentSrvc
+
+    steps:
+      - checkout
+
+      - setup_remote_docker
+
+      - run:
+          name: Build Service
+          command: |
+            cd $GIT_FOLDER &&
+            gradle build
+
+      - run:
+          name: Copy Service Test Results
+          command: |
+            set -xu
+            mkdir -p $TEST_REPORTS/junit/
+            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} $TEST_REPORTS/junit/ \;
+            #This dir contains html test output
+            #mkdir -p ${TEST_REPORTS}/order
+            #cp -r $GIT_FOLDER/build/reports/tests/* ${TEST_REPORTS}/order
+
+      #- run: |
+      #    cp $GIT_FOLDER/build/libs/*.jar /tmp/artifacts
+
+      # Save artifacts
+      #- store_artifacts:
+      #    path: /tmp/artifacts
+      #    destination: build
+
+      # Upload test results
+      - store_test_results:
+          path: /tmp/test-reports/junit/
+
+      - run:
+          name: Build and Push Service Docker Image
+          command: |
+            TAG=$DOCKER_TAG.$CIRCLE_BUILD_NUM
+            docker build -f $GIT_FOLDER/Dockerfile --build-arg port=$SERVICE_PORT --build-arg mongo_connection=mongodb://localhost/$GIT_FOLDER --build-arg VCS_REF=`git rev-parse --short HEAD` --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $DOCKER_IMAGE:$TAG .
+            #docker login -u $DOCKER_USER -p $DOCKER_PASS
+            #docker push $DOCKER_IMAGE:$TAG
+
+  catalogservice:
+    <<: *defaults
+    docker:
+      #https://github.com/circleci/circleci-images/blob/master/openjdk/generate-images
+      - image: circleci/openjdk:8-jdk
+
+    environment:
+      TEST_REPORTS: /tmp/test-reports
+      DOCKER_IMAGE: microsoft/pumrp-catalog
+      DOCKER_TAG: 1.0.0
+      SERVICE_PORT: 8080
+      GIT_FOLDER: CatalogSrvc
+
+    steps:
+      - checkout
+
+      - setup_remote_docker
+
+      - run:
+          name: Build Service
+          command: |
+            cd $GIT_FOLDER &&
+            gradle build
+
+      - run:
+          name: Copy Service Test Results
+          command: |
+            set -xu
+            mkdir -p $TEST_REPORTS/junit/
+            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} $TEST_REPORTS/junit/ \;
+            #This dir contains html test output
+            #mkdir -p ${TEST_REPORTS}/order
+            #cp -r $GIT_FOLDER/build/reports/tests/* ${TEST_REPORTS}/order
+
+      #- run: |
+      #    cp $GIT_FOLDER/build/libs/*.jar /tmp/artifacts
+
+      # Save artifacts
+      #- store_artifacts:
+      #    path: /tmp/artifacts
+      #    destination: build
+
+      # Upload test results
+      - store_test_results:
+          path: /tmp/test-reports/junit/
+
+      - run:
+          name: Build and Push Service Docker Image
+          command: |
+            TAG=$DOCKER_TAG.$CIRCLE_BUILD_NUM
+            docker build -f $GIT_FOLDER/Dockerfile --build-arg port=$SERVICE_PORT --build-arg mongo_connection=mongodb://localhost/$GIT_FOLDER --build-arg VCS_REF=`git rev-parse --short HEAD` --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $DOCKER_IMAGE:$TAG .
+            #docker login -u $DOCKER_USER -p $DOCKER_PASS
+            #docker push $DOCKER_IMAGE:$TAG
+
+  client:
+    <<: *defaults
+    docker:
+      #https://github.com/circleci/circleci-images/blob/master/openjdk/generate-images
+      - image: circleci/openjdk:8-jdk
+
+    environment:
+      DOCKER_IMAGE: microsoft/pumrp-client
+      DOCKER_TAG: 1.0.0
+      SERVICE_PORT: 8080
+      GIT_FOLDER: PartsUnlimitedMRP_Client
+
+    steps:
+      - checkout
+
+      - setup_remote_docker
+
+      - run:
+          name: Build Service
+          command: |
+            cd $GIT_FOLDER &&
+            gradle build
+
+      #- run: |
+      #    cp $GIT_FOLDER/build/libs/*.jar /tmp/artifacts
+
+      # Save artifacts
+      #- store_artifacts:
+      #    path: /tmp/artifacts
+      #    destination: build
+
+      - run:
+          name: Build and Push Service Docker Image
+          command: |
+            TAG=$DOCKER_TAG.$CIRCLE_BUILD_NUM
+            docker build -f $GIT_FOLDER/Dockerfile --build-arg port=$SERVICE_PORT --build-arg VCS_REF=`git rev-parse --short HEAD` --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $DOCKER_IMAGE:$TAG .
+            #docker login -u $DOCKER_USER -p $DOCKER_PASS
+            #docker push $DOCKER_IMAGE:$TAG
+
+  dealerservice:
+    <<: *defaults
+    docker:
+      - image: microsoft/dotnet:1.1.2-sdk
+
+    environment:
+      SERVICE_PORT: 8080
+      GIT_FOLDER: DealerService
+
+    steps:
+      - checkout
+
+      - run:
+          name: Build Service
+          command: |
+            cd $GIT_FOLDER
+            dotnet restore
+            dotnet build
+
+      - persist_to_workspace:
+          root: DealerService
+
+  dockerbuild:
+    <<: *defaults
+    docker:
+      - image: circleci/golang
+
+    environment:
+      DOCKER_IMAGE: microsoft/pumrp-dealer
+      DOCKER_TAG: 1.0.0
+
+    steps:
+      - setup_remote_docker
+
+      - attach_workspace:
+          at: /tmp/circleci/DealerService
+
+      - run:
+          name: Build and Push Service Docker Image
+          command: |
+            ls /tmp/circleci
+            TAG=$DOCKER_TAG.$CIRCLE_BUILD_NUM
+            docker build -f ./DealerService/Dockerfile -t $DOCKER_IMAGE:$TAG .
+            #docker login -u $DOCKER_USER -p $DOCKER_PASS
+            #docker push $DOCKER_IMAGE:$TAG
+
+workflows:
+  version: 2
+  build-services-in-parallel:
+    jobs:
+      - orderservice
+      - orderservicedocker:
+          requires:
+            - orderservice
+          filters:
+            branches:
+              ignore: dev
+      #- quoteservice
+      #- shipmentservice
+      #- catalogservice
+      #- client
