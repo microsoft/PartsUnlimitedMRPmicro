@@ -1,6 +1,10 @@
 .gradle
 build/
 
+#VS IDE files
+.vscode
+.vs
+
 # Ignore Gradle GUI config
 gradle-app.setting
 
