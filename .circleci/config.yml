@@ -84,9 +84,7 @@ jobs:
     <<: *gradleimage
 
     environment:
-      DOCKER_IMAGE: microsoft/pumrp-quote
-      DOCKER_TAG: 1.0.0
-      SERVICE_PORT: 8080  
+      TEST_REPORTS: /tmp/test-reports 
       GIT_FOLDER: QuoteSrvc
 
     steps:
@@ -95,6 +93,7 @@ jobs:
       - run:
           name: Build Service
           command: |
+            echo "Building " $GIT_FOLDER
             cd $GIT_FOLDER &&
             gradle build
 
@@ -142,6 +141,7 @@ jobs:
       - run:
           name: Build and Push Service Docker Image
           command: |
+            echo "Building " $GIT_FOLDER
             TAG=$DOCKER_TAG.$CIRCLE_BUILD_NUM
             docker build -f ./$GIT_FOLDER/Dockerfile --build-arg port=$SERVICE_PORT --build-arg mongo_connection=mongodb://localhost/$GIT_FOLDER --build-arg VCS_REF=`git rev-parse --short HEAD` --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $DOCKER_IMAGE:$TAG .
             if [[ ((`echo $CIRCLE_BRANCH | grep -c "master"` > 0))]]; then 
@@ -157,9 +157,7 @@ jobs:
     <<: *gradleimage
 
     environment:
-      DOCKER_IMAGE: microsoft/pumrp-shipment
-      DOCKER_TAG: 1.0.0
-      SERVICE_PORT: 8080  
+      TEST_REPORTS: /tmp/test-reports
       GIT_FOLDER: ShipmentSrvc
 
     steps:
@@ -168,6 +166,7 @@ jobs:
       - run:
           name: Build Service
           command: |
+            echo "Building " $GIT_FOLDER
             cd $GIT_FOLDER &&
             gradle build
 
@@ -238,6 +237,7 @@ jobs:
       - run:
           name: Build Service
           command: |
+            echo "Building " $GIT_FOLDER
             cd $GIT_FOLDER &&
             gradle build
 
@@ -285,6 +285,7 @@ jobs:
       - run:
           name: Build and Push Service Docker Image
           command: |
+            echo "Building " $GIT_FOLDER
             TAG=$DOCKER_TAG.$CIRCLE_BUILD_NUM
             docker build -f ./$GIT_FOLDER/Dockerfile --build-arg port=$SERVICE_PORT --build-arg mongo_connection=mongodb://localhost/$GIT_FOLDER --build-arg VCS_REF=`git rev-parse --short HEAD` --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $DOCKER_IMAGE:$TAG .
             if [[ ((`echo $CIRCLE_BRANCH | grep -c "master"` > 0))]]; then 
@@ -310,6 +311,7 @@ jobs:
       - run:
           name: Build Service
           command: |
+            echo "Building " $GIT_FOLDER
             cd $GIT_FOLDER
             dotnet restore
             dotnet build
@@ -324,6 +326,7 @@ jobs:
     environment:
       DOCKER_IMAGE: microsoft/pumrp-dealer
       DOCKER_TAG: 1.0.0
+      GIT_FOLDER: DealerService
 
     steps:
       - setup_remote_docker
@@ -334,6 +337,7 @@ jobs:
       - run:
           name: Build and Push Service Docker Image
           command: |
+            echo "Building " $GIT_FOLDER
             TAG=$DOCKER_TAG.$CIRCLE_BUILD_NUM
             docker build -f ./$GIT_FOLDER/Dockerfile -t $DOCKER_IMAGE:$TAG .
             if [[ ((`echo $CIRCLE_BRANCH | grep -c "master"` > 0))]]; then 
@@ -357,6 +361,7 @@ jobs:
       - run:
           name: Build Service
           command: |
+            echo "Building " $GIT_FOLDER
             cd $GIT_FOLDER &&
             gradle build
 
@@ -377,6 +382,7 @@ jobs:
       environment:
         DOCKER_IMAGE: microsoft/pumrp-web
         DOCKER_TAG: 1.0.0
+        GIT_FOLDER: PartsUnlimitedMRP_Client
 
       steps:
         - setup_remote_docker
@@ -387,6 +393,7 @@ jobs:
         - run:
             name: Build and Push Service Docker Image
             command: |
+              echo "Building " $GIT_FOLDER
               TAG=$DOCKER_TAG.$CIRCLE_BUILD_NUM
               docker build -f ./$GIT_FOLDER/Dockerfile -t $DOCKER_IMAGE:$TAG .
               if [[ ((`echo $CIRCLE_BRANCH | grep -c "master"` > 0))]]; then 
