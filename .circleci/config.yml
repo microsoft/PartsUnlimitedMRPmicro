@@ -396,7 +396,7 @@ jobs:
             command: |
               echo "Building " $GIT_FOLDER
               TAG=$DOCKER_TAG.$CIRCLE_BUILD_NUM
-              docker build -f ./$GIT_FOLDER/Dockerfile --build-arg port=$SERVICE_PORT --build-arg --build-arg VCS_REF=`git rev-parse --short HEAD` --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $DOCKER_IMAGE:$TAG .
+              docker build -f ./$GIT_FOLDER/Dockerfile --build-arg port=$SERVICE_PORT --build-arg VCS_REF=`git rev-parse --short HEAD` --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $DOCKER_IMAGE:$TAG .
               if [[ ((`echo $CIRCLE_BRANCH | grep -c "master"` > 0))]]; then 
                 echo "Push to registry since it's the master branch."
                 docker login -u $DOCKER_USER -p $DOCKER_PASS
