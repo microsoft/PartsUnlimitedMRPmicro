@@ -353,7 +353,7 @@ jobs:
     <<: *gradleimage
 
     environment:
-      GIT_FOLDER: PartsUnlimitedMRP_Client
+      GIT_FOLDER: Web
 
     steps:
       - checkout
@@ -373,7 +373,7 @@ jobs:
       #    path: /tmp/artifacts
       #    destination: build
       - persist_to_workspace:
-          root: PartsUnlimitedMRP_Client
+          root: Web
 
   webdocker:
       <<: *defaults
@@ -382,14 +382,14 @@ jobs:
       environment:
         DOCKER_IMAGE: microsoft/pumrp-web
         DOCKER_TAG: 1.0.0
-        GIT_FOLDER: PartsUnlimitedMRP_Client
+        GIT_FOLDER: Web
         SERVICE_PORT: 8080
 
       steps:
         - setup_remote_docker
 
         - attach_workspace:
-            at: /tmp/circleci/PartsUnlimitedMRP_Client
+            at: /tmp/circleci/Web
 
         - run:
             name: Build and Push Service Docker Image
