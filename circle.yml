@@ -1,0 +1,408 @@
+version: 2
+defaults: &defaults
+  working_directory: /tmp/circleci
+gradleimage: &gradleimage
+  docker:
+    - image: gradle:3.5-jdk8
+dockerimage: &dockerimage
+  docker:
+    - image: circleci/golang
+command-dockerbuild: &command-dockerbuild
+  name: Build and Push Service Docker Image
+  command: |
+    TAG=$DOCKER_TAG.$CIRCLE_BUILD_NUM
+    echo "Building " $GIT_FOLDER
+    docker build -f ./$GIT_FOLDER/Dockerfile --build-arg port=$SERVICE_PORT --build-arg mongo_connection=mongodb://localhost/$GIT_FOLDER --build-arg VCS_REF=`git rev-parse --short HEAD` --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $DOCKER_IMAGE:$TAG .
+    if [[ ((`echo $CIRCLE_BRANCH | grep -c "master"` > 0))]]; then 
+      echo "Push to registry since it's the master branch."
+      docker login -u $DOCKER_USER -p $DOCKER_PASS
+      docker push $DOCKER_IMAGE:$TAG
+    else
+      echo "Skip Docker push image since it is not the master branch."
+    fi
+
+jobs:
+  orderservice:
+    <<: *defaults
+    <<: *gradleimage
+
+    environment:
+      GIT_FOLDER: OrderSrvc
+      TEST_REPORTS: /tmp/test-reports
+
+    steps:
+      - checkout
+
+      - run:
+          name: Build Service
+          command: |
+            cd $GIT_FOLDER &&
+            gradle build
+
+      - run:
+          name: Copy Service Test Results
+          command: |
+            set -xu
+            mkdir -p $TEST_REPORTS/junit/
+            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} $TEST_REPORTS/junit/ \;
+            #This dir contains html test output
+            #mkdir -p ${TEST_REPORTS}/${GIT_FOLDER}
+            #cp -r $GIT_FOLDER/build/reports/tests/* ${TEST_REPORTS}/${GIT_FOLDER}
+
+      # Optionally Save and store jar build artifacts
+      #- run: |
+      #    cp $GIT_FOLDER/build/libs/*.jar /tmp/artifacts
+
+      #- store_artifacts:
+      #    path: /tmp/artifacts
+      #    destination: build
+
+      # Upload test results to CircleCI
+      - store_test_results:
+          path: /tmp/test-reports/junit/
+
+      - persist_to_workspace:
+          root: OrderSrvc
+
+  orderservicedocker:
+    <<: *defaults
+    <<: *dockerimage
+
+    environment:
+      DOCKER_IMAGE: microsoft/pumrp-order
+      DOCKER_TAG: 1.0.0
+      SERVICE_PORT: 8080
+      GIT_FOLDER: OrderSrvc
+
+    steps:
+      - setup_remote_docker
+
+      - attach_workspace:
+          at: /tmp/circleci/OrderSrvc
+
+      - run:
+          <<: *command-dockerbuild
+
+  quoteservice:
+    <<: *defaults
+    <<: *gradleimage
+
+    environment:
+      TEST_REPORTS: /tmp/test-reports 
+      GIT_FOLDER: QuoteSrvc
+
+    steps:
+      - checkout
+
+      - run:
+          name: Build Service
+          command: |
+            echo "Building " $GIT_FOLDER
+            cd $GIT_FOLDER &&
+            gradle build
+
+      - run:
+          name: Copy Service Test Results
+          command: |
+            set -xu
+            mkdir -p $TEST_REPORTS/junit/
+            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} $TEST_REPORTS/junit/ \;
+            #This dir contains html test output
+            #mkdir -p ${TEST_REPORTS}/${GIT_FOLDER}
+            #cp -r $GIT_FOLDER/build/reports/tests/* ${TEST_REPORTS}/${GIT_FOLDER}
+
+      # Optionally Save and store jar build artifacts
+      #- run: |
+      #    cp $GIT_FOLDER/build/libs/*.jar /tmp/artifacts
+
+      #- store_artifacts:
+      #    path: /tmp/artifacts
+      #    destination: build
+
+      # Upload test results
+      - store_test_results:
+          path: /tmp/test-reports/junit/
+
+      - persist_to_workspace:
+          root: QuoteSrvc
+
+  quoteservicedocker:
+    <<: *defaults
+    <<: *dockerimage
+
+    environment:
+      DOCKER_IMAGE: microsoft/pumrp-quote
+      DOCKER_TAG: 1.0.0
+      SERVICE_PORT: 8080
+      GIT_FOLDER: QuoteSrvc
+
+    steps:
+      - setup_remote_docker
+
+      - attach_workspace:
+          at: /tmp/circleci/QuoteSrvc
+
+      - run:
+          <<: *command-dockerbuild
+
+  shipmentservice:
+    <<: *defaults
+    <<: *gradleimage
+
+    environment:
+      TEST_REPORTS: /tmp/test-reports
+      GIT_FOLDER: ShipmentSrvc
+
+    steps:
+      - checkout
+
+      - run:
+          name: Build Service
+          command: |
+            echo "Building " $GIT_FOLDER
+            cd $GIT_FOLDER &&
+            gradle build
+
+      - run:
+          name: Copy Service Test Results
+          command: |
+            set -xu
+            mkdir -p $TEST_REPORTS/junit/
+            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} $TEST_REPORTS/junit/ \;
+            #This dir contains html test output
+            #mkdir -p ${TEST_REPORTS}/${GIT_FOLDER}
+            #cp -r $GIT_FOLDER/build/reports/tests/* ${TEST_REPORTS}/${GIT_FOLDER}
+
+      # Optionally Save and store jar build artifacts
+      #- run: |
+      #    cp $GIT_FOLDER/build/libs/*.jar /tmp/artifacts
+
+      #- store_artifacts:
+      #    path: /tmp/artifacts
+      #    destination: build
+
+      # Upload test results
+      - store_test_results:
+          path: /tmp/test-reports/junit/
+
+      - persist_to_workspace:
+          root: ShipmentSrvc
+
+  shipmentservicedocker:
+    <<: *defaults
+    <<: *dockerimage
+
+    environment:
+      DOCKER_IMAGE: microsoft/pumrp-shipment
+      DOCKER_TAG: 1.0.0
+      SERVICE_PORT: 8080
+      GIT_FOLDER: ShipmentSrvc
+
+    steps:
+      - setup_remote_docker
+
+      - attach_workspace:
+          at: /tmp/circleci/ShipmentSrvc
+
+      - run:
+          <<: *command-dockerbuild
+
+  catalogservice:
+    <<: *defaults
+    <<: *gradleimage
+
+    environment:
+      GIT_FOLDER: CatalogSrvc
+      TEST_REPORTS: /tmp/test-reports
+
+    steps:
+      - checkout
+
+      - run:
+          name: Build Service
+          command: |
+            echo "Building " $GIT_FOLDER
+            cd $GIT_FOLDER &&
+            gradle build
+
+      - run:
+          name: Copy Service Test Results
+          command: |
+            set -xu
+            mkdir -p $TEST_REPORTS/junit/
+            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} $TEST_REPORTS/junit/ \;
+            #This dir contains html test output
+            #mkdir -p ${TEST_REPORTS}/${GIT_FOLDER}
+            #cp -r $GIT_FOLDER/build/reports/tests/* ${TEST_REPORTS}/${GIT_FOLDER}
+
+      # Optionally Save and store jar build artifacts
+      #- run: |
+      #    cp $GIT_FOLDER/build/libs/*.jar /tmp/artifacts
+
+      #- store_artifacts:
+      #    path: /tmp/artifacts
+      #    destination: build
+
+      # Upload test results to CircleCI
+      - store_test_results:
+          path: /tmp/test-reports/junit/
+
+      - persist_to_workspace:
+          root: CatalogSrvc
+
+  catalogservicedocker:
+    <<: *defaults
+    <<: *dockerimage
+
+    environment:
+      DOCKER_IMAGE: microsoft/pumrp-catalog
+      DOCKER_TAG: 1.0.0
+      SERVICE_PORT: 8080
+      GIT_FOLDER: CatalogSrvc
+
+    steps:
+      - setup_remote_docker
+
+      - attach_workspace:
+          at: /tmp/circleci/CatalogSrvc
+
+      - run:
+          <<: *command-dockerbuild
+
+  dealerservice:
+    <<: *defaults
+    docker:
+      - image: microsoft/dotnet:1.1.2-sdk
+
+    environment:
+      SERVICE_PORT: 8080
+      GIT_FOLDER: DealerService
+
+    steps:
+      - checkout
+
+      - run:
+          name: Build Service
+          command: |
+            echo "Building " $GIT_FOLDER
+            cd $GIT_FOLDER
+            dotnet restore
+            dotnet build
+
+      - persist_to_workspace:
+          root: DealerService
+
+  dealerservicedocker:
+    <<: *defaults
+    <<: *dockerimage
+
+    environment:
+      DOCKER_IMAGE: microsoft/pumrp-dealer
+      DOCKER_TAG: 1.0.0
+      GIT_FOLDER: DealerService
+
+    steps:
+      - setup_remote_docker
+
+      - attach_workspace:
+          at: /tmp/circleci/DealerService
+
+      - run:
+          name: Build and Push Service Docker Image
+          command: |
+            echo "Building " $GIT_FOLDER
+            TAG=$DOCKER_TAG.$CIRCLE_BUILD_NUM
+            docker build -f ./$GIT_FOLDER/Dockerfile -t $DOCKER_IMAGE:$TAG .
+            if [[ ((`echo $CIRCLE_BRANCH | grep -c "master"` > 0))]]; then 
+              echo "Push to registry since it's the master branch."
+              docker login -u $DOCKER_USER -p $DOCKER_PASS
+              docker push $DOCKER_IMAGE:$TAG
+            else
+              echo "Skip Docker push image since it is not the master branch."
+            fi
+
+  web:
+    <<: *defaults
+    <<: *gradleimage
+
+    environment:
+      GIT_FOLDER: Web
+
+    steps:
+      - checkout
+
+      - run:
+          name: Build Service
+          command: |
+            echo "Building " $GIT_FOLDER
+            cd $GIT_FOLDER &&
+            gradle build
+
+      #- run: |
+      #    cp $GIT_FOLDER/build/libs/*.jar /tmp/artifacts
+
+      # Save artifacts
+      #- store_artifacts:
+      #    path: /tmp/artifacts
+      #    destination: build
+      - persist_to_workspace:
+          root: Web
+
+  webdocker:
+      <<: *defaults
+      <<: *dockerimage
+
+      environment:
+        DOCKER_IMAGE: microsoft/pumrp-web
+        DOCKER_TAG: 1.0.0
+        GIT_FOLDER: Web
+        SERVICE_PORT: 8080
+
+      steps:
+        - setup_remote_docker
+
+        - attach_workspace:
+            at: /tmp/circleci/Web
+
+        - run:
+            name: Build and Push Service Docker Image
+            command: |
+              echo "Building " $GIT_FOLDER
+              TAG=$DOCKER_TAG.$CIRCLE_BUILD_NUM
+              docker build -f ./$GIT_FOLDER/Dockerfile --build-arg port=$SERVICE_PORT --build-arg VCS_REF=`git rev-parse --short HEAD` --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $DOCKER_IMAGE:$TAG .
+              if [[ ((`echo $CIRCLE_BRANCH | grep -c "master"` > 0))]]; then 
+                echo "Push to registry since it's the master branch."
+                docker login -u $DOCKER_USER -p $DOCKER_PASS
+                docker push $DOCKER_IMAGE:$TAG
+              else
+                echo "Skip Docker push image since it is not the master branch."
+              fi
+
+workflows:
+  version: 2
+  build-pumrp-in-parallel:
+    jobs:
+      - orderservice
+      - orderservicedocker:
+          requires:
+            - orderservice
+      - quoteservice
+      - quoteservicedocker:
+          requires:
+            - quoteservice
+      - shipmentservice
+      - shipmentservicedocker:
+          requires:
+            - shipmentservice
+      - catalogservice
+      - catalogservicedocker:
+          requires:
+            - catalogservice
+      - dealerservice
+      - dealerservicedocker:
+          requires:
+            - dealerservice
+      - web
+      - webdocker:
+          requires:
+            - web
