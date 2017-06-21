@@ -12,12 +12,13 @@ command-dockerbuild: &command-dockerbuild
           command: |
             TAG=$DOCKER_TAG.$CIRCLE_BUILD_NUM
             echo "Building " $GIT_FOLDER
-            docker build -f ./$GIT_FOLDER/Dockerfile --build-arg port=$SERVICE_PORT --build-arg mongo_connection=mongodb://localhost/$GIT_FOLDER --build-arg VCS_REF=`git rev-parse --short HEAD` --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:$TAG .
+            docker build -f ./$GIT_FOLDER/Dockerfile --build-arg port=$SERVICE_PORT --build-arg mongo_connection=mongodb://localhost/$GIT_FOLDER --build-arg VCS_REF=`git rev-parse --short HEAD` --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:$TAG -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:latest .
             if [[ ((`echo $CIRCLE_BRANCH | grep -c "master"` > 0))]]; then 
               echo "Push to registry since it's the master branch."
               docker login $REGISTRY_NAME -u $DOCKER_USER -p $DOCKER_PASS
               docker push $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:$TAG
-              echo "Pushed image: " $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:$TAG
+              docker push $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:latest
+              echo "Pushed image: " $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:$TAG " and :latest tag"
             else
               echo "Skip Docker push image since it is not the master branch."
             fi
@@ -313,11 +314,13 @@ jobs:
           command: |
             echo "Building " $GIT_FOLDER
             TAG=$DOCKER_TAG.$CIRCLE_BUILD_NUM
-            docker build -f ./$GIT_FOLDER/Dockerfile -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:$TAG .
+            docker build -f ./$GIT_FOLDER/Dockerfile -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:$TAG -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:latest.
             if [[ ((`echo $CIRCLE_BRANCH | grep -c "master"` > 0))]]; then 
               echo "Push to registry since it's the master branch."
               docker login $REGISTRY_NAME -u $DOCKER_USER -p $DOCKER_PASS
               docker push $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:$TAG
+              docker push $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:latest
+              echo "Pushed image: " $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:$TAG " and :latest tag"
             else
               echo "Skip Docker push image since it is not the master branch."
             fi
@@ -370,11 +373,13 @@ jobs:
             command: |
               echo "Building " $GIT_FOLDER
               TAG=$DOCKER_TAG.$CIRCLE_BUILD_NUM
-              docker build -f ./$GIT_FOLDER/Dockerfile --build-arg port=$SERVICE_PORT --build-arg VCS_REF=`git rev-parse --short HEAD` --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:$TAG .
+              docker build -f ./$GIT_FOLDER/Dockerfile --build-arg port=$SERVICE_PORT --build-arg VCS_REF=`git rev-parse --short HEAD` --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:$TAG -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:latest .
               if [[ ((`echo $CIRCLE_BRANCH | grep -c "master"` > 0))]]; then 
                 echo "Push to registry since it's the master branch."
                 docker login $REGISTRY_NAME -u $DOCKER_USER -p $DOCKER_PASS
                 docker push $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:$TAG
+                docker push $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:latest
+                echo "Pushed image: " $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:$TAG " and :latest tag"
               else
                 echo "Skip Docker push image since it is not the master branch."
               fi
