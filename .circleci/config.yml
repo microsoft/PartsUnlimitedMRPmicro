@@ -17,6 +17,7 @@ command-dockerbuild: &command-dockerbuild
               echo "Push to registry since it's the master branch."
               docker login $REGISTRY_NAME -u $DOCKER_USER -p $DOCKER_PASS
               docker push $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:$TAG
+              echo "Pushed image: " $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:$TAG
             else
               echo "Skip Docker push image since it is not the master branch."
             fi
@@ -69,7 +70,7 @@ jobs:
     <<: *dockerimage
 
     environment:
-      DOCKER_IMAGE: microsoft/pumrp-order
+      DOCKER_IMAGE: pumrp-order
       DOCKER_TAG: 1.0.0
       SERVICE_PORT: 8080
       GIT_FOLDER: OrderSrvc
@@ -131,7 +132,7 @@ jobs:
     <<: *dockerimage
 
     environment:
-      DOCKER_IMAGE: microsoft/pumrp-quote
+      DOCKER_IMAGE: pumrp-quote
       DOCKER_TAG: 1.0.0
       SERVICE_PORT: 8080
       GIT_FOLDER: QuoteSrvc
@@ -193,7 +194,7 @@ jobs:
     <<: *dockerimage
 
     environment:
-      DOCKER_IMAGE: microsoft/pumrp-shipment
+      DOCKER_IMAGE: pumrp-shipment
       DOCKER_TAG: 1.0.0
       SERVICE_PORT: 8080
       GIT_FOLDER: ShipmentSrvc
@@ -255,7 +256,7 @@ jobs:
     <<: *dockerimage
 
     environment:
-      DOCKER_IMAGE: microsoft/pumrp-catalog
+      DOCKER_IMAGE: pumrp-catalog
       DOCKER_TAG: 1.0.0
       SERVICE_PORT: 8080
       GIT_FOLDER: CatalogSrvc
