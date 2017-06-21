@@ -3,7 +3,7 @@ defaults: &defaults
   working_directory: /tmp/circleci
 gradleimage: &gradleimage
     docker:
-      - image: gradle:3.5-jdk8
+      - image: gradle:3.4.1-jdk8-alpine
 dockerimage: &dockerimage
     docker:
       - image: circleci/golang
@@ -15,7 +15,7 @@ command-dockerbuild: &command-dockerbuild
             docker build -f ./$GIT_FOLDER/Dockerfile --build-arg port=$SERVICE_PORT --build-arg mongo_connection=mongodb://localhost/$GIT_FOLDER --build-arg VCS_REF=`git rev-parse --short HEAD` --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $DOCKER_IMAGE:$TAG .
             if [[ ((`echo $CIRCLE_BRANCH | grep -c "master"` > 0))]]; then 
               echo "Push to registry since it's the master branch."
-              docker login -u $DOCKER_USER -p $DOCKER_PASS
+              docker login $REGISTRY_NAME -u $DOCKER_USER -p $DOCKER_PASS
               docker push $DOCKER_IMAGE:$TAG
             else
               echo "Skip Docker push image since it is not the master branch."
@@ -297,7 +297,7 @@ jobs:
     <<: *dockerimage
 
     environment:
-      DOCKER_IMAGE: microsoft/pumrp-dealer
+      DOCKER_IMAGE: $REGISTRY_NAMEIMAGE/pumrp-dealer
       DOCKER_TAG: 1.0.0
       GIT_FOLDER: DealerService
 
@@ -315,7 +315,7 @@ jobs:
             docker build -f ./$GIT_FOLDER/Dockerfile -t $DOCKER_IMAGE:$TAG .
             if [[ ((`echo $CIRCLE_BRANCH | grep -c "master"` > 0))]]; then 
               echo "Push to registry since it's the master branch."
-              docker login -u $DOCKER_USER -p $DOCKER_PASS
+              docker login $REGISTRY_NAME -u $DOCKER_USER -p $DOCKER_PASS
               docker push $DOCKER_IMAGE:$TAG
             else
               echo "Skip Docker push image since it is not the master branch."
@@ -353,7 +353,7 @@ jobs:
       <<: *dockerimage
 
       environment:
-        DOCKER_IMAGE: microsoft/pumrp-web
+        DOCKER_IMAGE: $REGISTRY_NAMEIMAGE/pumrp-web
         DOCKER_TAG: 1.0.0
         GIT_FOLDER: Web
         SERVICE_PORT: 8080
@@ -372,7 +372,7 @@ jobs:
               docker build -f ./$GIT_FOLDER/Dockerfile --build-arg port=$SERVICE_PORT --build-arg VCS_REF=`git rev-parse --short HEAD` --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $DOCKER_IMAGE:$TAG .
               if [[ ((`echo $CIRCLE_BRANCH | grep -c "master"` > 0))]]; then 
                 echo "Push to registry since it's the master branch."
-                docker login -u $DOCKER_USER -p $DOCKER_PASS
+                docker login $REGISTRY_NAME -u $DOCKER_USER -p $DOCKER_PASS
                 docker push $DOCKER_IMAGE:$TAG
               else
                 echo "Skip Docker push image since it is not the master branch."
