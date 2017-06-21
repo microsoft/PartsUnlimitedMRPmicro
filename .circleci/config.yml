@@ -314,7 +314,7 @@ jobs:
           command: |
             echo "Building " $GIT_FOLDER
             TAG=$DOCKER_TAG.$CIRCLE_BUILD_NUM
-            docker build -f ./$GIT_FOLDER/Dockerfile -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:$TAG -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:latest.
+            docker build -f ./$GIT_FOLDER/Dockerfile -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:$TAG -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:latest .
             if [[ ((`echo $CIRCLE_BRANCH | grep -c "master"` > 0))]]; then 
               echo "Push to registry since it's the master branch."
               docker login $REGISTRY_NAME -u $DOCKER_USER -p $DOCKER_PASS
