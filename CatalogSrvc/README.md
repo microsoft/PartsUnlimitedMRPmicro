@@ -1,14 +1,16 @@
 # Catalog Microservice
 
-The catalog microservice is an API created using java spring connecting to MongoDB or CosmosDB and provides a catalog of inventory for the fictional outsourced Manufacturing Resource Planning (MRP) application. The build process creates a single archive (jar) file that is used by the Tomcat host for the service.  This microservice is also available as a [docker image on Docker hub](https://hub.docker.com/r/microsoft/pumrp-catalog/).
+The catalog microservice is an API created using java spring connecting to MongoDB or CosmosDB and provides a catalog of inventory for the fictional outsourced Manufacturing Resource Planning (MRP) application. The build process creates a single archive (jar) file that is used by the Tomcat host for the service.
+
+This microservice is also available as a [docker image on Docker hub](https://hub.docker.com/r/microsoft/pumrp-catalog/).
 
 Below, learn how to:
 
-* [Build the service](#Building-the-Catalog-Service)
-* [Clean all builds]()
-* [See Unit Tests]()
+[Build the service](#Build-the-Catalog-Service)
+[Clean all builds](#Clean-all-builds)
+[Unit Tests](#Unit-Testing)
 
-## Building the Catalog Service
+## Build the Catalog Service
 
 Below are instructions on how to build the catalog service using Windows, Linux, or Docker.
 
@@ -43,7 +45,7 @@ Below are instructions on how to build the catalog service using Windows, Linux,
 
 Any of above steps creates the ```catalogservice-1.0.jar```  build in the ```./build/libs``` directory.
 
-## Cleaning all builds
+## Clean all builds
 
 If you'd like to remove all of the local builds execute the following on Windows or Linux.
 
