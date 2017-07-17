@@ -6,9 +6,9 @@ This microservice is also available as a [docker image on Docker hub](https://hu
 
 Below, learn how to:
 
-[Build the service](#Build-the-Catalog-Service)
-[Clean all builds](#Clean-all-builds)
-[Unit Tests](#Unit-Testing)
+[Build the service](#build-the-catalog-service)  
+[Clean all builds](#clean-all-builds)  
+[See Unit Tests](#unit-testing)
 
 ## Build the Catalog Service
 
