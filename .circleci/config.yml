@@ -255,6 +255,8 @@ jobs:
           root: DealerService
           paths:
             - "*"
+            - Models
+            - Controllers
 
   dealerservicedocker:
     working_directory: *workdir

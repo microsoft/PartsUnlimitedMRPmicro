@@ -1,6 +1,6 @@
-# Building the Client #
+# Building the Web Client #
 
-The MRP client is a static website.  The build process here creates a single archive (war) file that is used by the Tomcat host for the site.
+The MRP web client is a static website.  The build process here creates a single archive (war) file that is used by the Tomcat host for the site.
 
 ## Windows ##
 
