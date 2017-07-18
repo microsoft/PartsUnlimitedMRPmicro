@@ -38,7 +38,7 @@ variables:
 
 jobs:
   orderservice:
-    working_directory: *workdir
+    working_directory: /tmp/circleci
     docker: *gradleimage
     environment:
       GIT_FOLDER: OrderSrvc
@@ -82,7 +82,7 @@ jobs:
       - run: *run-dockerbuild
 
   quoteservice:
-    working_directory: *workdir
+    working_directory: /tmp/circleci
     docker: *gradleimage
 
     environment:
@@ -174,7 +174,7 @@ jobs:
       - run: *run-dockerbuild
 
   catalogservice:
-    working_directory: *workdir
+    working_directory: /tmp/circleci
     docker: *gradleimage
 
     environment:
