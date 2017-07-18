@@ -23,7 +23,7 @@ variables:
   - &run-dockerbuild
     name: Build and Push Service Docker Image
     command: |
-      TAG=$DOCKER_TAG.$CIRCLE_BUILD_NUM
+      TAG=$DOCKER_TAG
       echo "Building " $GIT_FOLDER
       docker build -f ./$GIT_FOLDER/Dockerfile --build-arg port=$SERVICE_PORT --build-arg mongo_connection=mongodb://localhost/$GIT_FOLDER --build-arg VCS_REF=`git rev-parse --short HEAD` --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:$TAG -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:latest .
       if [[ ((`echo $CIRCLE_BRANCH | grep -c "master"` > 0))]]; then 
@@ -62,6 +62,9 @@ jobs:
 
       - persist_to_workspace:
           root: OrderSrvc
+          paths:
+            - "Dockerfile"
+            - build/libs/*
 
   orderservicedocker:
     working_directory: *workdir
@@ -157,6 +160,9 @@ jobs:
 
       - persist_to_workspace:
           root: ShipmentSrvc
+          paths:
+            - "Dockerfile"
+            - build/libs/*
 
   shipmentservicedocker:
     working_directory: *workdir
@@ -204,7 +210,7 @@ jobs:
       - persist_to_workspace:
           root: CatalogSrvc
           paths:
-            - "*"
+            - "Dockerfile"
             - build/libs/*
 
   catalogservicedocker:
@@ -247,6 +253,8 @@ jobs:
 
       - persist_to_workspace:
           root: DealerService
+          paths:
+            - "*"
 
   dealerservicedocker:
     working_directory: *workdir
@@ -263,12 +271,12 @@ jobs:
       - attach_workspace:
           at: /tmp/circleci/DealerService
 
-      - run:
+      - run: 
           name: Build and Push Service Docker Image
           command: |
+            TAG=$DOCKER_TAG
             echo "Building " $GIT_FOLDER
-            TAG=$DOCKER_TAG.$CIRCLE_BUILD_NUM
-            docker build -f ./$GIT_FOLDER/Dockerfile -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:$TAG -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:latest .
+            docker build -f ./$GIT_FOLDER/Dockerfile --build-arg port=$SERVICE_PORT --build-arg VCS_REF=`git rev-parse --short HEAD` --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:$TAG -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:latest .
             if [[ ((`echo $CIRCLE_BRANCH | grep -c "master"` > 0))]]; then 
               echo "Push to registry since it's the master branch."
               docker login $REGISTRY_NAME -u $DOCKER_USER -p $DOCKER_PASS
@@ -300,6 +308,8 @@ jobs:
       #    destination: build
       - persist_to_workspace:
           root: Web
+          paths:
+            - build/libs/*.war
 
   webdocker:
     working_directory: *workdir
@@ -321,7 +331,7 @@ jobs:
           name: Build and Push Service Docker Image
           command: |
             echo "Building " $GIT_FOLDER
-            TAG=$DOCKER_TAG.$CIRCLE_BUILD_NUM
+            TAG=$DOCKER_TAG
             docker build -f ./$GIT_FOLDER/Dockerfile --build-arg port=$SERVICE_PORT --build-arg VCS_REF=`git rev-parse --short HEAD` --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:$TAG -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:latest .
             if [[ ((`echo $CIRCLE_BRANCH | grep -c "master"` > 0))]]; then 
               echo "Push to registry since it's the master branch."
