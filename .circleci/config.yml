@@ -309,6 +309,7 @@ jobs:
       - persist_to_workspace:
           root: Web
           paths:
+            - "Dockerfile"
             - build/libs/*.war
 
   webdocker:
