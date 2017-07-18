@@ -41,7 +41,7 @@ Below are instructions on how to build the catalog service using Windows, Linux,
     From the root of the repository, execute:
 
     ```shell
-    docker run --rm -v $PWD/OrderSrvc:/project -w /project --name gradle gradle:3.4.1-jdk8-alpine gradle build
+    docker run --rm -v $PWD/CatalogSrvc:/project -w /project --name gradle gradle:3.4.1-jdk8-alpine gradle build
     ```
 
 Any of above steps creates the ```catalogservice-1.0.jar```  build in the ```./build/libs``` directory.
@@ -69,7 +69,7 @@ After the build has successfully completed, now it is possible to run the applic
     OR use a java docker image to run the jar via this command:
 
     ```
-    docker run -p 8080:8080 -it --rm -v $PWD/OrderSrvc/build/libs:/usr/local/app/ -w /usr/local/app openjdk:8-jre "java -Dspring.data.mongodb.uri=<mongodb-string> -jar -Dserver.port=8080 *.jar"
+    docker run -p 8080:8080 -it --rm -v $PWD/CatalogSrvc/build/libs:/usr/local/app/ -w /usr/local/app openjdk:8-jre "java -Dspring.data.mongodb.uri=<mongodb-string> -jar -Dserver.port=8080 *.jar"
     ```
 
 ## Clean all builds
