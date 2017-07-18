@@ -61,7 +61,7 @@ jobs:
           path: /tmp/test-reports/junit/
 
       - persist_to_workspace:
-          root: OrderSrvc
+          root: /OrderSrvc
 
   orderservicedocker:
     working_directory: *workdir
@@ -107,7 +107,7 @@ jobs:
           path: /tmp/test-reports/junit/
 
       - persist_to_workspace:
-          root: QuoteSrvc
+          root: /tmp/circleci/QuoteSrvc
 
   quoteservicedocker:
     working_directory: *workdir
