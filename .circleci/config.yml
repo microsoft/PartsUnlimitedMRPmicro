@@ -38,7 +38,7 @@ variables:
 
 jobs:
   orderservice:
-    working_directory: /tmp/circleci
+    working_directory: *workdir
     docker: *gradleimage
     environment:
       GIT_FOLDER: OrderSrvc
@@ -61,7 +61,7 @@ jobs:
           path: /tmp/test-reports/junit/
 
       - persist_to_workspace:
-          root: /OrderSrvc
+          root: OrderSrvc
 
   orderservicedocker:
     working_directory: *workdir
@@ -82,7 +82,7 @@ jobs:
       - run: *run-dockerbuild
 
   quoteservice:
-    working_directory: /tmp/circleci
+    working_directory: *workdir
     docker: *gradleimage
 
     environment:
@@ -107,7 +107,10 @@ jobs:
           path: /tmp/test-reports/junit/
 
       - persist_to_workspace:
-          root: /tmp/circleci/QuoteSrvc
+          root: QuoteSrvc
+          paths:
+            - "Dockerfile"
+            - build/libs/*
 
   quoteservicedocker:
     working_directory: *workdir
@@ -174,7 +177,7 @@ jobs:
       - run: *run-dockerbuild
 
   catalogservice:
-    working_directory: /tmp/circleci
+    working_directory: *workdir
     docker: *gradleimage
 
     environment:
@@ -200,6 +203,9 @@ jobs:
 
       - persist_to_workspace:
           root: CatalogSrvc
+          paths:
+            - "*"
+            - build/libs/*
 
   catalogservicedocker:
     working_directory: *workdir
