@@ -25,6 +25,11 @@ variables:
     command: |
       TAG=$DOCKER_TAG
       echo "Building " $GIT_FOLDER
+      pwd
+      ls
+      git status
+      cd /tmp/circleci
+      ls
       VCSREF="$(git rev-parse --short HEAD)"
       echo "VCS-REF is: " $VCSREF
       docker build -f ./$GIT_FOLDER/Dockerfile --build-arg port=$SERVICE_PORT --build-arg mongo_connection=mongodb://localhost/$GIT_FOLDER --build-arg VCS_REF=$VCSREF --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:$TAG -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:latest .
