@@ -7,12 +7,12 @@ ARG BUILD_DATE
 RUN mkdir -p /DealerApi/Dealer
 WORKDIR /DealerApi/Dealer
 
-LABEL com.microsoft.vcs-ref=$VCS_REF \
-      com.microsoft.vendor="Microsoft" \
-      com.microsoft.name="pumrp-dealer" \
-      com.microsoft.url="https://hub.docker.com/r/microsoft/pumrp-dealer/" \
-      com.microsoft.vcs-url="https://github.com/Microsoft/PartsUnlimitedMRPmicro/tree/master/DealerService" \
-      com.microsoft.build-date=$BUILD_DATE
+LABEL org.label-schema.vcs-ref=$VCS_REF \
+      org.label-schema.vendor="Microsoft" \
+      org.label-schema.name="pumrp-dealer" \
+      org.label-schema.url="https://hub.docker.com/r/microsoft/pumrp-dealer/" \
+      org.label-schema.vcs-url="https://github.com/Microsoft/PartsUnlimitedMRPmicro/tree/master/DealerService" \
+      org.label-schema.build-date=$BUILD_DATE
 
 # Copy the source and restore depdendencies
 COPY /DealerService /DealerApi/Dealer
