@@ -8,12 +8,12 @@ ARG mongo_connection
 ENV expose_port=$port
 ENV mongo_conn=$mongo_connection
 
-LABEL com.microsoft.vcs-ref=$VCS_REF \
-      com.microsoft.vendor="Microsoft" \
-      com.microsoft.name="pumrp-catalog" \
-      com.microsoft.url="https://hub.docker.com/r/microsoft/pumrp-catalog/" \
-      com.microsoft.vcs-url="https://github.com/Microsoft/PartsUnlimitedMRPmicro/tree/master/CatalogSrvc" \
-      com.microsoft.build-date=$BUILD_DATE
+LABEL org.label-schema.vcs-ref=$VCS_REF \
+      org.label-schema.vendor="Microsoft" \
+      org.label-schema.name="pumrp-catalog" \
+      org.label-schema.url="https://hub.docker.com/r/microsoft/pumrp-catalog/" \
+      org.label-schema.vcs-url="https://github.com/Microsoft/PartsUnlimitedMRPmicro/tree/master/CatalogSrvc" \
+      org.label-schema.build-date=$BUILD_DATE
 
 RUN mkdir -p /usr/local/app
 
