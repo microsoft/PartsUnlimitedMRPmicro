@@ -47,7 +47,6 @@ jobs:
       TEST_REPORTS: /tmp/test-reports
     steps:
       - checkout
-      - run: echo $CIRCLE_SHA1 > $GIT_FOLDER/vcsref
       - run: *run-buildjava 
       - run: *run-javatestresults
 
@@ -68,7 +67,6 @@ jobs:
           paths:
             - "Dockerfile"
             - build/libs/*
-            - "vcsref"
 
   orderservicedocker:
     working_directory: *workdir
