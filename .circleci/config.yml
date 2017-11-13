@@ -3,7 +3,7 @@ variables:
   - &workdir
     /tmp/circleci
   - &dockerbuildimage
-      - image: docker:17.10
+      - image: circleci/golang
   - &gradleimage
       - image: gradle:3.4.1-jdk8-alpine
   - &run-buildjava
@@ -28,9 +28,6 @@ variables:
       VCSREF=$CIRCLE_SHA1
       echo "VCSREF is: " $VCSREF
       docker build -f ./$GIT_FOLDER/Dockerfile --build-arg port=$SERVICE_PORT --build-arg mongo_connection=mongodb://localhost/$GIT_FOLDER --build-arg VCS_REF=$VCSREF --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:$TAG -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:latest .
-      apk add --update -t deps
-      apk add bash
-      bash
       if [[ ((`echo $CIRCLE_BRANCH | grep -c "master"` > 0))]]; then 
         echo "Push to registry since it's the master branch."
         docker login $REGISTRY_NAME -u $DOCKER_USER -p $DOCKER_PASS
@@ -50,7 +47,7 @@ jobs:
       TEST_REPORTS: /tmp/test-reports
     steps:
       - checkout
-      #- run: git rev-parse --short HEAD > $GIT_FOLDER/vcsref
+      - run: echo $CIRCLE_SHA1 > $GIT_FOLDER/vcsref
       - run: *run-buildjava 
       - run: *run-javatestresults
 
@@ -71,7 +68,7 @@ jobs:
           paths:
             - "Dockerfile"
             - build/libs/*
-            #- "vcsref"
+            - "vcsref"
 
   orderservicedocker:
     working_directory: *workdir
