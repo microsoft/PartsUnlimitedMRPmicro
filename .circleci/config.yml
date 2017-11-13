@@ -3,7 +3,7 @@ variables:
   - &workdir
     /tmp/circleci
   - &dockerbuildimage
-      - image: circleci/golang
+      - image: docker/17.10
   - &gradleimage
       - image: gradle:3.4.1-jdk8-alpine
   - &run-buildjava
@@ -47,7 +47,7 @@ jobs:
       TEST_REPORTS: /tmp/test-reports
     steps:
       - checkout
-      - run: git rev-parse --short HEAD > $GIT_FOLDER/vcsref
+      #- run: git rev-parse --short HEAD > $GIT_FOLDER/vcsref
       - run: *run-buildjava 
       - run: *run-javatestresults
 
@@ -68,7 +68,7 @@ jobs:
           paths:
             - "Dockerfile"
             - build/libs/*
-            - "vcsref"
+            #- "vcsref"
 
   orderservicedocker:
     working_directory: *workdir
