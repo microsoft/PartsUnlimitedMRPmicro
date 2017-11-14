@@ -2,7 +2,7 @@
 layout: page
 title: CI, CD, RM with Visual Studio Team Services (VSTS)
 category: HOLs
-order: 2
+order: 3
 ---
 
 Learn how to setup continuous integration, continuous deployment, and release management for the dockerized Parts Unlimited MRP order microservice utilizing Visual Studio Team Services (VSTS) and **Helm** to deploy the application to a Kubernetes cluster running on top of Azure Container Service (ACS).
