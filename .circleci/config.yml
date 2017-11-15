@@ -344,6 +344,9 @@ jobs:
             else
               echo "Skip Docker push image since it is not the master branch."
             fi
+branches:
+  ignore:
+    - gh-pages
 workflows:
   version: 2
   build-pumrp-in-parallel:
