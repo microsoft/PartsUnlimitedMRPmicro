@@ -347,7 +347,7 @@ branches:
   ignore:
     - gh-pages
     - /deploy/*
-    - *.md
+    - \.\(md)
 workflows:
   version: 2
   build-pumrp-in-parallel:
