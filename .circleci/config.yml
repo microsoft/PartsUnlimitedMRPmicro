@@ -346,8 +346,8 @@ jobs:
 branches:
   ignore:
     - gh-pages
-    - /deploy/*
     - \.\(md)
+    - /deploy/*
 workflows:
   version: 2
   build-pumrp-in-parallel:
