@@ -5,6 +5,5 @@ version: 0.1.1
 sources:
 - https://dxdevop.visualstudio.com/mrpmicro/_git/code
 maintainers:
-- name: David
-  email: david.tesar@microsoft.com
+- name: Parts Unlimited MRP GitHub Team
 engine: gotpl
