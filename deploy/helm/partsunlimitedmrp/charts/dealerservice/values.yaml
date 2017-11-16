@@ -3,7 +3,7 @@
 # Declare variables to be passed into your templates.
 replicaCount: 1
 image:
-  repository: puregistry-on.azurecr.io/pudealer
+  name: pumrp-dealer
   tag: latest
   pullPolicy: IfNotPresent
 labels:

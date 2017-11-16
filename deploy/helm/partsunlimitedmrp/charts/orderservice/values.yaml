@@ -2,8 +2,11 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 replicaCount: 1
+apiversion:
+  deployment: apps/v1beta1 # for versions 1.8+ use apps/v1beta2
 image:
-  repository: puregistry-on.azurecr.io/puorder
+  repository: microsoft
+  name: pumrp-order
   tag: latest
   pullPolicy: IfNotPresent
 labels:

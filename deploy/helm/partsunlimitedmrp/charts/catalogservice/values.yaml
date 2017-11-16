@@ -3,7 +3,7 @@
 # Declare variables to be passed into your templates.
 replicaCount: 1
 image:
-  repository: puregistry-on.azurecr.io/pucatalog
+  name: pumrp-catalog
   tag: latest
   pullPolicy: IfNotPresent
 labels:
@@ -23,4 +23,3 @@ resources:
   requests:
     cpu: 100m
     memory: 128Mi
-
