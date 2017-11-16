@@ -17,7 +17,7 @@ Learn how to create and setup a new Azure Container Service (ACS) with Kubernete
 ### Tasks Overview
 
 1. Setup ACS Kubernetes Cluster
-1. Create DocumentDB and use DocumentDB api for MongoDB
+1. Create Cosmos DB and use Cosmos DB api for MongoDB
 1. Build and Push Docker Container to ACR
 1. Install and Setup Helm
 1. Create Helm charts
@@ -52,11 +52,11 @@ kubectl cluster-info
 ![](<../assets/deployacsk8shelm/task1step1kubectlclusterinfo.png>)
 The above output tells that the local kubectl is able to communicate successfully with the kubernetes cluster. For more information or troubleshooting, see [Connect to an Azure Container Service cluster](https://docs.microsoft.com/en-us/azure/container-service/container-service-connect) and [using the Kubernetes web UI with Azure Container Service](https://docs.microsoft.com/en-us/azure/container-service/container-service-kubernetes-ui).
 
-## Task 2:  Create DocumentDB and use DocumentDB api for MongoDB
+## Task 2:  Create Cosmos DB and use Cosmos DB api for MongoDB
 
-This lab uses DocumentDB database as the data store and uses MongoDB connection string to connect to it.
+This lab uses Cosmos DB database as the data store and uses MongoDB connection string to connect to it.
 
-[Follow the steps in this website](https://docs.microsoft.com/en-us/azure/documentdb/documentdb-connect-mongodb-account) which walks through the setup steps for DocumentDB and obtaining the MongoDB connection string.
+[Follow the steps in this website](https://docs.microsoft.com/en-us/azure/cosmos-db/connect-mongodb-account) which walks through the setup steps for Cosmos DB and obtaining the MongoDB connection string.
 
 ## Task 3:  Build the Docker Image and push to Azure Container Registry
 
