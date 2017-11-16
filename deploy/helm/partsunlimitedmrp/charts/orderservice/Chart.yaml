@@ -1,7 +1,7 @@
 apiVersion: v1
 description: A Helm chart for Order Service
 name: orderservice
-version: 0.1.0
+version: 0.1.1
 sources:
 - https://dxdevop.visualstudio.com/mrpmicro/_git/code
 maintainers:
