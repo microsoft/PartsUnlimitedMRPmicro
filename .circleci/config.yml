@@ -352,36 +352,60 @@ workflows:
       - orderservice:
           filters:
             branches: *branchignore
+      - orderhold:
+          type: approval
+          requires: 
+            - orderservice
       - orderservicedocker:
           requires:
-            - orderservice
+            - orderhold
       - quoteservice:
           filters:
             branches: *branchignore
+      - quotehold:
+          type: approval
+          requires: 
+            - quoteservice
       - quoteservicedocker:
           requires:
-            - quoteservice
+            - quotehold
       - shipmentservice:
           filters:
             branches: *branchignore
+      - shipmenthold:
+          type: approval
+          requires: 
+            - shipmentservice
       - shipmentservicedocker:
           requires:
-            - shipmentservice
+            - shipmenthold
       - catalogservice:
           filters: 
             branches: *branchignore
+      - cataloghold:
+          type: approval
+          requires: 
+            - catalogservice
       - catalogservicedocker:
           requires:
-            - catalogservice
+            - cataloghold
       - dealerservice:
           filters:
             branches: *branchignore
+      - dealerhold:
+          type: approval
+          requires: 
+            - dealerservice
       - dealerservicedocker:
           requires:
-            - dealerservice
+            - dealerhold
       - web:
           filters:
             branches: *branchignore
+      - webhold:
+          type: approval
+          requires: 
+            - web
       - webdocker:
           requires:
-            - web
+            - webhold
