@@ -350,7 +350,7 @@ workflows:
       - orderservice:
           filters:
             branches:
-              only: master
+              ignore: [gh-pages, \.\(md), /deploy/*]
       - orderservicedocker:
           requires:
             - orderservice
