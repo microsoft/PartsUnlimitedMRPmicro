@@ -2,6 +2,8 @@ version: 2
 variables: 
   - &workdir
     /tmp/circleci
+  - &branchignore
+    ignore: [helm, gh-pages]
   - &dockerbuildimage
       - image: circleci/golang
   - &gradleimage
@@ -349,43 +351,37 @@ workflows:
     jobs:
       - orderservice:
           filters:
-            branches:
-              ignore: [gh-pages, \.\(md), /deploy/*]
+            branches: *branchignore
       - orderservicedocker:
           requires:
             - orderservice
-      - quoteservice
+      - quoteservice:
           filters:
-            branches:
-              ignore: ["\.\(md)", "/deploy/*"]
+            branches: *branchignore
       - quoteservicedocker:
           requires:
             - quoteservice
-      - shipmentservice
+      - shipmentservice:
           filters:
-            branches:
-              ignore: [/deploy/*]
+            branches: *branchignore
       - shipmentservicedocker:
           requires:
             - shipmentservice
-      - catalogservice
-          filters:
-            branches:
-              ignore: ["/deploy*"]
+      - catalogservice:
+          filters: 
+            branches: *branchignore
       - catalogservicedocker:
           requires:
             - catalogservice
-      - dealerservice
+      - dealerservice:
           filters:
-            branches:
-              ignore: [/\.\(md)]
+            branches: *branchignore
       - dealerservicedocker:
           requires:
             - dealerservice
-      - web
+      - web:
           filters:
-            branches:
-              ignore: [/*\.\(md)]
+            branches: *branchignore
       - webdocker:
           requires:
             - web
