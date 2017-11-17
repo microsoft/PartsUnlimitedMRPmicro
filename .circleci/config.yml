@@ -347,7 +347,7 @@ workflows:
   version: 2
   build-pumrp-in-parallel:
     jobs:
-      - orderservice
+      - orderservice:
           filters:
             branches:
               ignore:
