@@ -355,22 +355,37 @@ workflows:
           requires:
             - orderservice
       - quoteservice
+          filters:
+            branches:
+              ignore: ["\.\(md)", "/deploy/*"]
       - quoteservicedocker:
           requires:
             - quoteservice
       - shipmentservice
+          filters:
+            branches:
+              ignore: [/deploy/*]
       - shipmentservicedocker:
           requires:
             - shipmentservice
       - catalogservice
+          filters:
+            branches:
+              ignore: ["/deploy*"]
       - catalogservicedocker:
           requires:
             - catalogservice
       - dealerservice
+          filters:
+            branches:
+              ignore: [/\.\(md)]
       - dealerservicedocker:
           requires:
             - dealerservice
       - web
+          filters:
+            branches:
+              ignore: [/*\.\(md)]
       - webdocker:
           requires:
             - web
