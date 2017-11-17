@@ -3,7 +3,7 @@ variables:
   - &workdir
     /tmp/circleci
   - &branchignore
-    ignore: [helm, gh-pages]
+    ignore: [noci, gh-pages]
   - &dockerbuildimage
       - image: circleci/golang
   - &gradleimage
