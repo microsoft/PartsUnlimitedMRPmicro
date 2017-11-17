@@ -346,11 +346,12 @@ jobs:
 workflows:
   version: 2
   build-pumrp-in-parallel:
-    branches:
-      ignore:
-        - gh-pages
-        - \.\(md)
-        - /deploy/*
+    filters:
+      branches:
+        ignore:
+          - gh-pages
+          - \.\(md)
+          - /deploy/*
     jobs:
       - orderservice
       - orderservicedocker:
