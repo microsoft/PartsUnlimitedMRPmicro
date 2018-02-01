@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: {{ .Values.apiversion.deployment }}
 kind: Deployment
 metadata:
   name: {{ template "fullname" . }}
@@ -15,9 +15,10 @@ spec:
     spec:
       containers:
       - name: {{ .Chart.Name }}
-        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        image: "{{ .Values.image.repository }}/{{ .Values.image.name }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
-        - containerPort: {{ .Values.service.internalPort }}
+        - name: {{ .Values.service.portName }}
+          containerPort: {{ .Values.service.internalPort }}
       imagePullSecrets:
       - name: {{ .Values.service.imagePullSecrets }}

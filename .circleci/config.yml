@@ -2,6 +2,8 @@ version: 2
 variables: 
   - &workdir
     /tmp/circleci
+  - &branchignore
+    ignore: [noci, gh-pages]
   - &dockerbuildimage
       - image: circleci/golang
   - &gradleimage
@@ -34,7 +36,6 @@ variables:
       else
         echo "Skip Docker push image since it is not the master branch."
       fi
-
 jobs:
   orderservice:
     working_directory: *workdir
@@ -344,34 +345,67 @@ jobs:
             else
               echo "Skip Docker push image since it is not the master branch."
             fi
-branches:
-  ignore:
-    - gh-pages
 workflows:
   version: 2
   build-pumrp-in-parallel:
     jobs:
-      - orderservice
+      - orderservice:
+          filters:
+            branches: *branchignore
+      - orderhold:
+          type: approval
+          requires: 
+            - orderservice
       - orderservicedocker:
           requires:
-            - orderservice
-      - quoteservice
+            - orderhold
+      - quoteservice:
+          filters:
+            branches: *branchignore
+      - quotehold:
+          type: approval
+          requires: 
+            - quoteservice
       - quoteservicedocker:
           requires:
-            - quoteservice
-      - shipmentservice
+            - quotehold
+      - shipmentservice:
+          filters:
+            branches: *branchignore
+      - shipmenthold:
+          type: approval
+          requires: 
+            - shipmentservice
       - shipmentservicedocker:
           requires:
-            - shipmentservice
-      - catalogservice
+            - shipmenthold
+      - catalogservice:
+          filters: 
+            branches: *branchignore
+      - cataloghold:
+          type: approval
+          requires: 
+            - catalogservice
       - catalogservicedocker:
           requires:
-            - catalogservice
-      - dealerservice
+            - cataloghold
+      - dealerservice:
+          filters:
+            branches: *branchignore
+      - dealerhold:
+          type: approval
+          requires: 
+            - dealerservice
       - dealerservicedocker:
           requires:
-            - dealerservice
-      - web
+            - dealerhold
+      - web:
+          filters:
+            branches: *branchignore
+      - webhold:
+          type: approval
+          requires: 
+            - web
       - webdocker:
           requires:
-            - web
+            - webhold
