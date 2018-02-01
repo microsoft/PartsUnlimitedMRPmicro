@@ -13,7 +13,7 @@ LABEL org.label-schema.vcs-ref=$VCS_REF \
       org.label-schema.vcs-url="https://github.com/Microsoft/PartsUnlimitedMRPmicro" \
       org.label-schema.build-date=$BUILD_DATE
 
-COPY /build/libs/*.war /usr/local/tomcat/webapps/
+COPY Web/build/libs/*.war /usr/local/tomcat/webapps/
 
 EXPOSE $expose_port
 

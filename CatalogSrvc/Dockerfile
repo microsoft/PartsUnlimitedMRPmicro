@@ -19,7 +19,7 @@ RUN mkdir -p /usr/local/app
 
 WORKDIR /usr/local/app
 
-COPY build/libs/*.jar /usr/local/app/
+COPY CatalogSrvc/build/libs/*.jar /usr/local/app/
 
 EXPOSE $expose_port
 
