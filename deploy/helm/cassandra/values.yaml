@@ -23,7 +23,7 @@ cassandra:
 
 # Persistence information
 persistence:
-  storageClass: fast
+  storageClass: default
   accessMode: ReadWriteOnce
   size: 10Gi
 

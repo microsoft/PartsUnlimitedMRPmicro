@@ -3,6 +3,12 @@ FROM microsoft/dotnet:1.1.2-sdk
 ARG VCS_REF
 ARG BUILD_DATE
 
+ARG mongo_connection
+ARG mongo_database
+
+ENV mongo_database=$mongo_database
+ENV mongo_conn=$mongo_connection
+
 # Create directory for the app source code
 RUN mkdir -p /DealerApi/Dealer
 WORKDIR /DealerApi/Dealer

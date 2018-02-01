@@ -16,8 +16,7 @@ namespace DealerApi.Models
         public MongoDealersRepository(string connectionstring)
         {
             _client = new MongoClient(connectionstring);
-            _db = _client.GetDatabase("ordering");
-
+            _db = _client.GetDatabase(Environment.GetEnvironmentVariable("mongo_database"));
         }
 
         public Dealer getDealer(String name)

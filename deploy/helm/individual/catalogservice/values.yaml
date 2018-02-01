@@ -5,7 +5,7 @@ replicaCount: 1
 image:
   repository: puregistry-on.azurecr.io/pucatalog
   tag: latest
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
 labels:
   tier: backend
   link: PartsUnlimitedMrp

@@ -12,4 +12,6 @@ spec:
     protocol: TCP
     name: {{ .Values.service.name }}
   selector:
-    app: {{ .Values.prometheus.name }}-monitoring
+    app: {{ template "fullname" . }}
+    tier: {{ .Values.labels.tier }}
+    link: {{ .Values.labels.link }}

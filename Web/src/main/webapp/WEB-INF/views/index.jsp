@@ -19,7 +19,7 @@
 	<script type="text/javascript" src="<spring:url value="./resources/js/date.js" />"></script>
     <script type="text/javascript" src="<spring:url value="./resources/js/default.js" />"></script>
     <script type="text/javascript" src="<spring:url value="./resources/controls/edittools/edittools.js" />"></script>
-    <script type="text/javascript" src="<spring:url value="https://maps.googleapis.com/maps/api/js?libraries=places" />"></script>
+    <!-- <script type="text/javascript" src="<spring:url value="https://maps.googleapis.com/maps/api/js?libraries=places" />"></script> -->
 </head>
 <body>
     <ul class="navigation">
