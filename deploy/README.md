@@ -1,6 +1,8 @@
-# Scripts to deploy the whole environement and the application using bash
+# Scripts to deploy the whole environment and the application using bash
 
-Those steps allow you to deploy the whole environement from your local machine using Docker, AKS, ACR and MongoDB.
+Those steps allow you to deploy the whole environment from your local machine using Docker, AKS, ACR and MongoDB.
+
+If you want to learn on how you can automate the deployment using DevOps practices, you can look at the [Hands on Labs section.](https://microsoft.github.io/PartsUnlimitedMRPmicro/hols/circleci.html)
 
 ## Setup prerequisites and variables
 
