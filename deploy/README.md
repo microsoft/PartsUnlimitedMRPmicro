@@ -1,5 +1,7 @@
 # Scripts to deploy the whole environement and the application using bash
 
+Those steps allow you to deploy the whole environement from your local machine using Docker, AKS, ACR and MongoDB.
+
 ## Setup prerequisites and variables
 
 ### Local Prerequisites
@@ -108,7 +110,7 @@ cd PartsUnlimitedMRPmicro
 
 docker run --rm -v $PWD/ZipkinServer:/project -w /project --name gradle gradle:3.4.1-jdk8-alpine gradle build
 
-docker build --build-arg port=9411 -t ${READY_RG}acr.azurecr.io/zipkin:v1.0 ./ZipkinServer
+docker build -f ./ZipkinServer/Dockerfile --build-arg port=9411 -t ${READY_RG}acr.azurecr.io/zipkin:v1.0 .
 
 docker push ${READY_RG}acr.azurecr.io/zipkin:v1.0
 
@@ -124,7 +126,7 @@ cd PartsUnlimitedMRPmicro
 
 docker run --rm -v $PWD/RestAPIGateway:/project -w /project --name gradle gradle:3.4.1-jdk8-alpine gradle build -x test
 
-docker build --build-arg port=9020 -t ${READY_RG}acr.azurecr.io/apigateway:v1.0 ./RestAPIGateway 
+docker build -f ./RestAPIGateway/Dockerfile --build-arg port=9020 -t ${READY_RG}acr.azurecr.io/apigateway:v1.0 . 
 
 docker push ${READY_RG}acr.azurecr.io/apigateway:v1.0
 
@@ -140,7 +142,7 @@ cd PartsUnlimitedMRPmicro
 
 docker run --rm -v $PWD/Web:/project -w /project --name gradle gradle:3.4.1-jdk8-alpine gradle build
 
-docker build --build-arg port=8080 -t ${READY_RG}acr.azurecr.io/puclient:v1.0 ./Web
+docker build -f ./Web/Dockerfile --build-arg port=8080 -t ${READY_RG}acr.azurecr.io/puclient:v1.0 .
 
 docker push ${READY_RG}acr.azurecr.io/puclient:v1.0
 
@@ -156,7 +158,7 @@ cd PartsUnlimitedMRPmicro
 
 docker run --rm -v $PWD/OrderSrvc:/project -w /project --name gradle gradle:3.4.1-jdk8-alpine gradle build
 
-docker build --build-arg port=8080 --build-arg mongo_connection=$READY_COSMOSDB -t ${READY_RG}acr.azurecr.io/puorder:v1.0 ./OrderSrvc
+docker build -f ./OrderSrvc/Dockerfile --build-arg port=8080 --build-arg mongo_connection=$READY_COSMOSDB -t ${READY_RG}acr.azurecr.io/puorder:v1.0 .
 
 docker push ${READY_RG}acr.azurecr.io/puorder:v1.0
 
@@ -172,7 +174,7 @@ cd PartsUnlimitedMRPmicro
 
 docker run --rm -v $PWD/CatalogSrvc:/project -w /project --name gradle gradle:3.4.1-jdk8-alpine gradle build
 
-docker build --build-arg port=8080 --build-arg mongo_connection=$READY_COSMOSDB -t ${READY_RG}acr.azurecr.io/pucatalog:v1.0 ./CatalogSrvc
+docker build -f ./CatalogSrvc/Dockerfile --build-arg port=8080 --build-arg mongo_connection=$READY_COSMOSDB -t ${READY_RG}acr.azurecr.io/pucatalog:v1.0 .
 
 docker push ${READY_RG}acr.azurecr.io/pucatalog:v1.0
 
@@ -188,7 +190,7 @@ cd PartsUnlimitedMRPmicro
 
 docker run --rm -v $PWD/ShipmentSrvc:/project -w /project --name gradle gradle:3.4.1-jdk8-alpine gradle build
 
-docker build --build-arg port=8080 --build-arg mongo_connection=$READY_COSMOSDB -t ${READY_RG}acr.azurecr.io/pushipment:v1.0 ./ShipmentSrvc
+docker build -f ./ShipmentSrvc/Dockerfile --build-arg port=8080 --build-arg mongo_connection=$READY_COSMOSDB -t ${READY_RG}acr.azurecr.io/pushipment:v1.0 .
 
 docker push ${READY_RG}acr.azurecr.io/pushipment:v1.0
 
@@ -204,7 +206,7 @@ cd PartsUnlimitedMRPmicro
 
 docker run --rm -v $PWD/QuoteSrvc:/project -w /project --name gradle gradle:3.4.1-jdk8-alpine gradle build
 
-docker build --build-arg port=8080 --build-arg mongo_connection=$READY_COSMOSDB -t ${READY_RG}acr.azurecr.io/puquote:v1.0 ./QuoteSrvc
+docker build -f ./QuoteSrvc/Dockerfile --build-arg port=8080 --build-arg mongo_connection=$READY_COSMOSDB -t ${READY_RG}acr.azurecr.io/puquote:v1.0 .
 
 docker push ${READY_RG}acr.azurecr.io/puquote:v1.0
 
