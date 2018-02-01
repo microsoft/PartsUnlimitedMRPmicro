@@ -26,6 +26,7 @@ variables:
     name: Build and Push Service Docker Image
     command: |
       TAG=$DOCKER_TAG
+      if [[ "${REGISTRY_NAMEIMAGE}" == "" ]] ; then REGISTRY_NAMEIMAGE="buildci"; fi
       docker build -f ./$GIT_FOLDER/Dockerfile --build-arg port=$SERVICE_PORT --build-arg mongo_connection=mongodb://localhost/$GIT_FOLDER --build-arg VCS_REF=$CIRCLE_SHA1 --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:$TAG -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:latest .
       if [[ ((`echo $CIRCLE_BRANCH | grep -c "master"` > 0))]]; then 
         echo "Push to registry since it's the master branch."
@@ -277,6 +278,7 @@ jobs:
           name: Build and Push Service Docker Image
           command: |
             TAG=$DOCKER_TAG
+            if [[ "${REGISTRY_NAMEIMAGE}" == "" ]] ; then REGISTRY_NAMEIMAGE="buildci"; fi
             echo "Building " $GIT_FOLDER
             docker build -f ./$GIT_FOLDER/Dockerfile --build-arg port=$SERVICE_PORT --build-arg VCS_REF=`git rev-parse --short HEAD` --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:$TAG -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:latest .
             if [[ ((`echo $CIRCLE_BRANCH | grep -c "master"` > 0))]]; then 
@@ -335,6 +337,7 @@ jobs:
           command: |
             echo "Building " $GIT_FOLDER
             TAG=$DOCKER_TAG
+            if [[ "${REGISTRY_NAMEIMAGE}" == "" ]] ; then REGISTRY_NAMEIMAGE="buildci"; fi
             docker build -f ./$GIT_FOLDER/Dockerfile --build-arg port=$SERVICE_PORT --build-arg VCS_REF=`git rev-parse --short HEAD` --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:$TAG -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:latest .
             if [[ ((`echo $CIRCLE_BRANCH | grep -c "master"` > 0))]]; then 
               echo "Push to registry since it's the master branch."
