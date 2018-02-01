@@ -8,7 +8,7 @@ image:
   repository: mypumrpmicro.azurecr.io/pumrp
   name: pumrp-web
   tag: latest
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
 labels:
   tier: frontend
   link: PartsUnlimitedMrp

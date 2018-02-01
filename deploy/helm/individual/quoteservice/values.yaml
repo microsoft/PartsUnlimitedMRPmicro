@@ -8,7 +8,7 @@ image:
   repository: mypumrpmicro.azurecr.io/pumrp
   name: pumrp-quote
   tag: latest
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
 labels:
   tier: backend
   link: PartsUnlimitedMrp

@@ -18,7 +18,12 @@ namespace DealerApi.Controllers
         public DealerController(ILogger<DealerController> log,IConfiguration iconfiguration)
         {
             _log = log;
-            objds = new MongoDealersRepository(iconfiguration.GetValue<string>("Data:ConnectionString"));
+            log.LogInformation("--------------------------------------------------");
+            log.LogInformation("---debug----Creating instance Dealer");
+            log.LogInformation(Environment.GetEnvironmentVariable("mongo_connection"));
+            log.LogInformation(Environment.GetEnvironmentVariable("mongo_database"));
+            log.LogInformation("--------------------------------------------------");
+            objds = new MongoDealersRepository(Environment.GetEnvironmentVariable("mongo_connection"));
         }
 
         /// <summary>

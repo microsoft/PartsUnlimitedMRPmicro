@@ -1,0 +1,355 @@
+---
+#
+# Based on: https://github.com/prometheus/prometheus/blob/master/documentation/examples/prometheus-kubernetes.yml
+#
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 30s
+      scrape_timeout: 30s
+    rule_files:
+    - '/etc/prometheus-rules/alert.rules'
+    scrape_configs:
+    - job_name: 'prometheus'
+      static_configs:
+        - targets: ['localhost:9090']
+    - job_name: 'kubernetes-cluster'
+      scheme: https
+      tls_config:
+        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+      kubernetes_sd_configs:
+      - api_servers:
+        - 'https://kubernetes.default.svc'
+        in_cluster: true
+        role: apiserver
+    - job_name: 'kubernetes-nodes'
+      scheme: https
+      tls_config:
+        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        insecure_skip_verify: true
+      bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+      kubernetes_sd_configs:
+      - api_servers:
+        - 'https://kubernetes.default.svc'
+        in_cluster: true
+        role: node
+      relabel_configs:
+      - action: labelmap
+        regex: __meta_kubernetes_node_label_(.+)
+    - job_name: 'kubernetes-service-endpoints'
+      scheme: https
+      kubernetes_sd_configs:
+      - api_servers:
+        - 'https://kubernetes.default.svc'
+        in_cluster: true
+        role: endpoint
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scrape]
+        action: keep
+        regex: true
+      - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scheme]
+        action: replace
+        target_label: __scheme__
+        regex: (https?)
+      - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_path]
+        action: replace
+        target_label: __metrics_path__
+        regex: (.+)
+      - source_labels: [__address__, __meta_kubernetes_service_annotation_prometheus_io_port]
+        action: replace
+        target_label: __address__
+        regex: (.+)(?::\d+);(\d+)
+        replacement: $1:$2
+      - action: labelmap
+        regex: __meta_kubernetes_service_label_(.+)
+      - source_labels: [__meta_kubernetes_service_namespace]
+        action: replace
+        target_label: kubernetes_namespace
+      - source_labels: [__meta_kubernetes_service_name]
+        action: replace
+        target_label: kubernetes_name
+    - job_name: 'kubernetes-services'
+      scheme: https
+      metrics_path: /probe
+      params:
+        module: [http_2xx]
+      kubernetes_sd_configs:
+      - api_servers:
+        - 'https://kubernetes.default.svc'
+        in_cluster: true
+        role: service
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_probe]
+        action: keep
+        regex: true
+      - source_labels: [__address__]
+        target_label: __param_target
+      - target_label: __address__
+        replacement: blackbox
+      - source_labels: [__param_target]
+        target_label: instance
+      - action: labelmap
+        regex: __meta_kubernetes_service_label_(.+)
+      - source_labels: [__meta_kubernetes_service_namespace]
+        target_label: kubernetes_namespace
+      - source_labels: [__meta_kubernetes_service_name]
+        target_label: kubernetes_name
+    - job_name: 'kubernetes-pods'
+      scheme: https
+      kubernetes_sd_configs:
+      - api_servers:
+        - 'https://kubernetes.default.svc'
+        in_cluster: true
+        role: pod
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+        action: keep
+        regex: true
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+        action: replace
+        target_label: __metrics_path__
+        regex: (.+)
+      - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+        action: replace
+        regex: (.+):(?:\d+);(\d+)
+        replacement: ${1}:${2}
+        target_label: __address__
+      - action: labelmap
+        regex: __meta_kubernetes_pod_label_(.+)
+      - source_labels: [__meta_kubernetes_pod_namespace]
+        action: replace
+        target_label: kubernetes_namespace
+      - source_labels: [__meta_kubernetes_pod_name]
+        action: replace
+        target_label: kubernetes_pod_name
+    #ServiceApp endpoint
+    - job_name: 'ServiceApplication'
+      metrics_path: /prometheus
+      #  # scheme defaults to 'http'.
+      static_configs:
+        - targets: ['catalog-catalogservice:80', 'quote-quoteservice:80', 'shipment-shipmentservice:80', 'order-orderservice:80']
+    #Zipkin endpoint
+    - job_name: 'zipkin'
+      metrics_path: /prometheus
+      # scheme defaults to 'http'.
+      static_configs:
+        - targets: ['zipkin-zipkin:9411']
+
+    - job_name: 'nodeexporter'
+      scrape_interval: 5s
+      static_configs:
+        - targets: ['localhost:9100']
+---
+##################################################################################
+################################ALERT MANAGER#####################################
+##################################################################################
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-alertmanager
+data:
+  alertmanager.yml: |-
+    global:
+
+    # The root route on which each incoming alert enters.
+    route:
+      # The root route must not have any matchers as it is the entry point for
+      # all alerts. It needs to have a receiver configured so alerts that do not
+      # match any of the sub-routes are sent to someone.
+      receiver: 'email-me'
+
+      # The labels by which incoming alerts are grouped together. For example,
+      # multiple alerts coming in for cluster=A and alertname=LatencyHigh would
+      # be batched into a single group.
+      group_by: ['alertname', 'cluster']
+
+      # When a new group of alerts is created by an incoming alert, wait at
+      # least 'group_wait' to send the initial notification.
+      # This way ensures that you get multiple alerts for the same group that start
+      # firing shortly after another are batched together on the first
+      # notification.
+      group_wait: 30s
+
+      # When the first notification was sent, wait 'group_interval' to send a batch
+      # of new alerts that started firing for that group.
+      group_interval: 5m
+
+      # If an alert has successfully been sent, wait 'repeat_interval' to
+      # resend them.
+      repeat_interval: 3h
+
+      # All the above attributes are inherited by all child routes and can
+      # overwritten on each.
+
+
+      routes:
+      # This routes performs a regular expression match on alert labels to
+      # catch alerts that are related to a list of services.
+      - match:
+          service: frontend
+        receiver: email-me
+        continue: true
+
+      - match:
+          service: backend
+        receiver: email-me
+        continue: true
+
+    # Inhibition rules allow to mute a set of alerts given that another alert is
+    # firing.
+    # We use this to mute any warning-level notifications if the same alert is
+    # already critical.
+    inhibit_rules:
+    - source_match:
+        severity: 'critical'
+      target_match:
+        severity: 'warning'
+      # Apply inhibition if the alertname is the same.
+      equal: ['alertname']
+
+
+    receivers:
+
+    - name: email-me
+      email_configs:
+      - to: chatbotpoc@outlook.com
+        from: demoprometheus@gmail.com
+        smarthost: smtp.gmail.com:587
+        auth_username: demoprometheus@gmail.com
+        auth_identity: demoprometheus@gmail.com
+        auth_password: abcd@1234D
+
+      slack_configs:
+      - send_resolved: true
+        api_url: 'https://hooks.slack.com/services/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'
+        channel: '#prometheus-alert'
+        text: >-
+          
+              Summary: 
+              Description: 
+              Details:
+               -  = 
+              
+              Playbook: 
+              Graph:
+##########################################################
+############### ALERT-RULES###############################
+##########################################################
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-alert-rules
+data:
+  alert.rules: |-
+    ## alert.rules ##
+     #
+
+    #
+    # CPU Alerts
+    #
+    ALERT HighCPUContainer
+      IF (rate(container_cpu_usage_seconds_total{image!=""}[5m])*100) > 95
+      FOR 10m
+      LABELS { service = "backend" }
+      ANNOTATIONS {
+        summary = "High CPU Usage",
+        description = "This machine  has really high CPU usage for over 10m",
+      }
+
+    ALERT HighCPUUsageOrderService
+      IF (rate(container_cpu_usage_seconds_total{image!="",container_name="orderservice"}[5m])*100) > 95
+      FOR 10m
+      LABELS { service = "backend" }
+      ANNOTATIONS {
+        summary = "High CPU Usage",
+        description = "This machine  has really high CPU usage for over 10m",
+      }
+
+    #
+    # Memory Usage greater than 22GB
+    #
+    ALERT MemoryUsage
+      IF  sum(container_memory_usage_bytes{image!=""}) > 22207799296
+      FOR 1m
+      LABELS { service = "frontend" }
+      ANNOTATIONS {
+        summary = "Memory usage exceeded 22GB",
+        description = "Memory usage exceeded 22GB",
+      }
+
+    #
+    # Multiple GET
+    #
+    ALERT MultipleGetRequest_Test
+      IF  CatalogServiceApplication_requests_get_Catalog_total > 10
+      FOR 1m
+      LABELS { service = "frontend" }
+      ANNOTATIONS {
+        summary = "Multiple GET requests encountered",
+        description = "Multiple GET requests encountered",
+      }
+
+    #
+    # Multiple Exception
+    #
+    ALERT MultipleException
+      IF  OrderServiceApplication_requests_failures_total > 10
+      FOR 1m
+      LABELS { service = "frontend" }
+      ANNOTATIONS {
+        summary = "Multiple Exception encountered",
+        description = "Multiple Exception encountered",
+      }
+
+    # Alerts reffered from http://trustmeiamadeveloper.com/2016/07/03/bringing-the-light-of-monitoring-with-prometheus/
+
+    ALERT InstanceDown  
+      IF up == 0
+      FOR 10m
+      LABELS { severity = "page" }
+      ANNOTATIONS {
+        summary = "Instance  is down",
+        description = "Instance has been down for more than 5 minutes"
+      }
+    
+    ALERT InstanceHighCpuNode  
+      IF 100 - (avg by (host) (irate(node_cpu{mode="idle"}[5m])) * 100) > 5
+      FOR 10m  LABELS { severity = "page" }
+      ANNOTATIONS {
+        summary = "Instance cpu high",
+        description = "Instance has high cpu activity"
+      }
+    
+    ALERT InstanceLowMemory  
+      IF node_memory_MemAvailable < 268435456
+      FOR 10m
+      LABELS { severity = "page" }
+      ANNOTATIONS {
+        summary = "Instance has memory low",
+        description = "Instance has less than 256M memory available"
+      }
+    
+    ALERT InstanceLowDisk  
+      IF node_filesystem_avail{mountpoint="/etc/hosts"} < 10737418240
+      FOR 10m  LABELS { severity = "page" }
+      ANNOTATIONS {
+        summary = "Instance has low disk space",
+        description = "Instance has less than 10G FS space"
+      }
+    
+    ALERT InstanceLowDisk  
+      IF node_filesystem_avail{mountpoint="/etc/hosts"} < 10737418240
+      FOR 10m  LABELS { severity = "page" }
+      ANNOTATIONS {
+        summary = "Instance has low disk space",
+        description = "Instance has less than 10G FS space"
+      }
