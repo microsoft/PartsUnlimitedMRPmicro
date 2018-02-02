@@ -72,7 +72,6 @@ jobs:
 
     environment:
       DOCKER_IMAGE: pumrp-order
-      DOCKER_TAG: 1.0.1
       SERVICE_PORT: 8080
       GIT_FOLDER: OrderSrvc
 
@@ -121,7 +120,6 @@ jobs:
 
     environment:
       DOCKER_IMAGE: pumrp-quote
-      DOCKER_TAG: 1.0.1
       SERVICE_PORT: 8080
       GIT_FOLDER: QuoteSrvc
 
@@ -170,7 +168,6 @@ jobs:
 
     environment:
       DOCKER_IMAGE: pumrp-shipment
-      DOCKER_TAG: 1.0.1
       SERVICE_PORT: 8080
       GIT_FOLDER: ShipmentSrvc
 
@@ -219,7 +216,6 @@ jobs:
 
     environment:
       DOCKER_IMAGE: pumrp-catalog
-      DOCKER_TAG: 1.0.1
       SERVICE_PORT: 8080
       GIT_FOLDER: CatalogSrvc
 
@@ -264,7 +260,6 @@ jobs:
 
     environment:
       DOCKER_IMAGE: pumrp-dealer
-      DOCKER_TAG: 1.0.1
       GIT_FOLDER: DealerService
 
     steps:
@@ -320,7 +315,6 @@ jobs:
 
     environment:
       DOCKER_IMAGE: pumrp-web
-      DOCKER_TAG: 1.0.1
       GIT_FOLDER: Web
       SERVICE_PORT: 8080
 
