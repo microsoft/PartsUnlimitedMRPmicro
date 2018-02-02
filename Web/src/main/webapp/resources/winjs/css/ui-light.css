@@ -391,7 +391,7 @@
 }
 @font-face {
   font-family: "Symbols";
-  src: url(../fonts/Symbols.ttf);
+  src: url(../fonts/symbols.ttf);
 }
 .win-type-xx-large {
   font-size: 46px;

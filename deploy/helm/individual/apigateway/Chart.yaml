@@ -3,7 +3,7 @@ description: A Helm chart for Parts Unlimited Mrp
 name: partsunlimitedmrp
 version: 0.1.0
 sources:
-- https://dxdevop.visualstudio.com/mrpmicro/_git/code
+- https://github.com/Microsoft/PartsUnlimitedMRPmicro
 maintainers:
 - name: Parts Unlimited MRP GitHub Team
 engine: gotpl
