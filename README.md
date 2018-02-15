@@ -7,12 +7,15 @@ or here for the same [Parts Unlimited MRP application](http://aka.ms/pumrplabs) 
 
 To read and learn more about this project, please visit the [documentation website](https://microsoft.github.io/PartsUnlimitedMRPmicro/).
 
+CircleCI Build status: [![CircleCI](https://circleci.com/gh/Microsoft/PartsUnlimitedMRPmicro/tree/master.svg?style=svg)](https://circleci.com/gh/Microsoft/PartsUnlimitedMRPmicro/tree/master)
+
 ## Key Features
 
-- Entire application is dockerized and runs on Azure Container Service with Kubernetes orchestrator
+- Entire application is dockerized and runs on [Azure Container Service](https://docs.microsoft.com/azure/aks/) (AKS) or any other Kubernetes cluster
 - Front end service - runs Apache Tomcat and talks to all microservices services utilizing Hystrix and JSP.
 - Catalog, Order, Shipment, and Quote microservices - are Java spring APIs and call DocDb using the MongoDB driver.
 - Dealer microservice - is a .Net Core API using C#
+- Microservices and frontend container [images are available on Docker hub](https://hub.docker.com/r/microsoft/pumrp-web/).
 
 ## Contributing
 
