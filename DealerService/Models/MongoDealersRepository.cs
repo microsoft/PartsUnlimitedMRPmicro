@@ -23,7 +23,7 @@ namespace DealerApi.Models
         {
             var res = Query<Dealer>.EQ(p => p.name, name);
             //var existing = _db.GetCollection<Dealer>("Dealer").FindOne(res);
-            var existing = _db.GetCollection<Dealer>("Dealer").FindAsync(p => p.name == name).Result.First();
+            var existing = _db.GetCollection<Dealer>("Dealer").FindAsync(p => p.name == name).Result.FirstOrDefault();
 
             if (existing != null)
             {
@@ -57,7 +57,7 @@ namespace DealerApi.Models
                 var res = Query<Dealer>.EQ(pd => pd.name, dealer.name);
                 var operation = Update<Dealer>.Replace(dealer);
                 Dealer mongoDealer = new Dealer();
-                var existing = _db.GetCollection<Dealer>("Dealer").FindAsync(p => p.name == dealer.name).Result.First();
+                var existing = _db.GetCollection<Dealer>("Dealer").FindAsync(p => p.name == dealer.name).Result.FirstOrDefault();
 
                 if (existing != null)
                 {
