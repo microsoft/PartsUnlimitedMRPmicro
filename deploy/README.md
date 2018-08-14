@@ -75,11 +75,13 @@ READY_COSMOSDB_TEMP=$(az cosmosdb list-connection-strings -n ${READY_RG}db -g ${
 
 READY_COSMOSDB=$(echo ${READY_COSMOSDB_TEMP/?ssl=true/pumrp?ssl=true})
 
-# Old script to feed the DB
-# https://raw.githubusercontent.com/Microsoft/PartsUnlimitedMRP/master/deploy/MongoRecords.js
+```
 
-# Connect to the db using the MongoShell
-mongo readywinter18db.documents.azure.com:10255/purmp -u readywinter18db -p sPc4ex1MGoqQsquW35m3XVek3CuRMaFY31dIZlMFvEkcJiVH0bU55PiroaZxNn6vdRgfusQmPJ17UdyqcIQcfA== --ssl --sslAllowInvalidCertificates
+Edit `load_mock_data.js` with your DB information and run it to load your database with mock data:
+```
+$ node load_mock_data.js
+(node:82192) DeprecationWarning: current URL string parser is deprecated, and will be removed in a future version. To use the new parser, pass option { useNewUrlParser: true } to MongoClient.connect.
+Connected successfully to server
 ```
 
 ### Prerequisites in the K8s cluster
@@ -123,7 +125,7 @@ helm install ./deploy/helm/individual/zipkinserver --name=zipkin --set image.tag
 ```bash
 docker run --rm -v $PWD/RestAPIGateway:/project -w /project --name gradle gradle:3.4.1-jdk8-alpine gradle build -x test
 
-docker build -f ./RestAPIGateway/Dockerfile --build-arg port=9020 -t ${READY_RG}acr.azurecr.io/apigateway:v1.0 . 
+docker build -f ./RestAPIGateway/Dockerfile --build-arg port=9020 -t ${READY_RG}acr.azurecr.io/apigateway:v1.0 .
 
 docker push ${READY_RG}acr.azurecr.io/apigateway:v1.0
 
