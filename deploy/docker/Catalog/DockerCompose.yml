@@ -1,8 +1,0 @@
-version: "2"
-
-services:
-    pucatalog:
-        build: .
-        image:  puregistry-on.azurecr.io/pucatalog
-        ports:
-            - "8080"
