@@ -9,15 +9,14 @@ image:
   name: pumrp-web
   tag: latest
   pullPolicy: Always
+  imagePullSecrets: puregistrykey
 labels:
   tier: frontend
   link: PartsUnlimitedMrp
 service:
-  name: pu-mrp-frontend
-  type: LoadBalancer
+  type: ClusterIP
   externalPort: 80
   internalPort: 8080
-  imagePullSecrets: puregistrykey
 resources:
   limits:
     cpu: 100m

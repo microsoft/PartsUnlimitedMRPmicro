@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "fullname" . }}
+  name: {{ .Values.image.name }}-svc
   labels:
     chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
 spec:
@@ -10,8 +10,8 @@ spec:
   - port: {{ .Values.service.externalPort }}
     targetPort: {{ .Values.service.internalPort }}
     protocol: TCP
-    name: {{ .Values.service.name }}
+    name: "http-{{ .Values.image.name }}"
   selector:
-    app: {{ template "fullname" . }}
+    app: {{ .Values.image.name }}
     tier: {{ .Values.labels.tier }}
     link: {{ .Values.labels.link }}
