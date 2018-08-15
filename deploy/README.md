@@ -69,19 +69,21 @@ az aks get-credentials -g $READY_RG -n $READY_RG
 ### MongoDB Backend using CosmosDB
 
 ```bash
-az cosmosdb create -n ${READY_RG}db -g $READY_RG --kind MongoDB
+READY_COSMOSDB_NAME=${READY_RG}db
+az cosmosdb create -n $READY_COSMOSDB_NAME -g $READY_RG --kind MongoDB
 
-READY_COSMOSDB_TEMP=$(az cosmosdb list-connection-strings -n ${READY_RG}db -g ${READY_RG} -o tsv --query 'connectionStrings[0].[connectionString]')
-
-READY_COSMOSDB=$(echo ${READY_COSMOSDB_TEMP/?ssl=true/pumrp?ssl=true})
-
+READY_COSMOSDB_PASS=$(az cosmosdb list-keys -n $READY_COSMOSDB_NAME -g ${READY_RG} -o tsv --query 'primaryMasterKey')
 ```
 
-Edit `load_mock_data.js` with your DB information and run it to load your database with mock data:
-```
-$ node load_mock_data.js
-(node:82192) DeprecationWarning: current URL string parser is deprecated, and will be removed in a future version. To use the new parser, pass option { useNewUrlParser: true } to MongoClient.connect.
+Install the node.js mongodb npm package.
+`npm install mongodb`
+
+Execute `load_mock_data.js` with your DB information and run it to load your database with mock data:
+
+```shell
+$ node load_mock_data.js $READY_COSMOSDB_NAME $READY_COSMOSDB_PASS
 Connected successfully to server
+Records Imported
 ```
 
 ### Prerequisites in the K8s cluster
