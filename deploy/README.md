@@ -73,6 +73,8 @@ READY_COSMOSDB_NAME=${READY_RG}db
 az cosmosdb create -n $READY_COSMOSDB_NAME -g $READY_RG --kind MongoDB
 
 READY_COSMOSDB_PASS=$(az cosmosdb list-keys -n $READY_COSMOSDB_NAME -g ${READY_RG} -o tsv --query 'primaryMasterKey')
+
+READY_COSMOSDB="mongodb://${READY_COSMOSDB_NAME}:${READY_COSMOSDB_PASS}@${READY_COSMOSDB_NAME}.documents.azure.com:10255/${READY_COSMOSDB_NAME}?ssl=true&replicaSet=globaldb"
 ```
 
 Install the node.js mongodb npm package.
@@ -89,9 +91,16 @@ Records Imported
 ### Prerequisites in the K8s cluster
 
 ```bash
+# Add the secrets to be authenticated in the cluster
+READY_ACR_PASSWORD=$(az acr credential show -n ${READY_RG}acr -g ${READY_RG} -o tsv --query 'passwords[0].value')
+
+kubectl create secret docker-registry puregistrykey --docker-server=https://${READY_RG}acr.azurecr.io --docker-username=${READY_RG}acr --docker-password=$READY_ACR_PASSWORD --docker-email=$READY_RG@contoso.com
+
+# Add the kubernetes CosmosDB secret for APIs to connect
+kubectl create secret generic cosmosdb --from-literal=connection=$READY_COSMOSDB --from-literal=database=${READY_COSMOSDB_NAME}
+
 # Install / Upgrade Helm
 helm init --upgrade
-
 ```
 
 ## Application
@@ -99,7 +108,7 @@ helm init --upgrade
 ### Prometheus and Grafana
 
 ```bash
-helm install ./deploy/helm/individual/prometheus --name=prometheus
+helm install ./deploy/helm/prometheus --name=prometheus
 
 helm install --name grafana stable/grafana --set server.service.type=LoadBalancer
 ```
@@ -119,7 +128,7 @@ docker build -f ./ZipkinServer/Dockerfile --build-arg port=9411 -t ${READY_RG}ac
 
 docker push ${READY_RG}acr.azurecr.io/zipkin:v1.0
 
-helm install ./deploy/helm/individual/zipkinserver --name=zipkin --set image.tag=v1.0,image.repository=${READY_RG}acr.azurecr.io/zipkin
+helm install ./deploy/helm/zipkinserver --name=zipkin --set image.tag=v1.0,image.repository=${READY_RG}acr.azurecr.io/zipkin
 ```
 
 ### API Gateway
@@ -127,11 +136,11 @@ helm install ./deploy/helm/individual/zipkinserver --name=zipkin --set image.tag
 ```bash
 docker run --rm -v $PWD/RestAPIGateway:/project -w /project --name gradle gradle:3.4.1-jdk8-alpine gradle build -x test
 
-docker build -f ./RestAPIGateway/Dockerfile --build-arg port=9020 -t ${READY_RG}acr.azurecr.io/apigateway:v1.0 .
+docker build -f ./RestAPIGateway/Dockerfile --build-arg port=9020 -t ${READY_RG}acr.azurecr.io/pumrp/apigateway:v1.0 .
 
-docker push ${READY_RG}acr.azurecr.io/apigateway:v1.0
+docker push ${READY_RG}acr.azurecr.io/pumrp/apigateway:v1.0
 
-helm install ./deploy/helm/individual/apigateway --name=api --set image.tag=v1.0,image.repository=${READY_RG}acr.azurecr.io/apigateway
+helm install ./deploy/helm/apigateway --name=api --set image.tag=v1.0,image.repository=${READY_RG}acr.azurecr.io/apigateway
 ```
 
 ### FrontEnd - Client
@@ -143,43 +152,70 @@ docker build -f ./Web/Dockerfile --build-arg port=8080 -t ${READY_RG}acr.azurecr
 
 docker push ${READY_RG}acr.azurecr.io/puclient:v1.0
 
-helm install ./deploy/helm/individual/partsunlimitedmrp --name=client --set image.tag=v1.0,image.repository=${READY_RG}acr.azurecr.io/puclient
+helm install ./deploy/helm/pumrpmicro --name=client --set image.tag=v1.0,image.repository=${READY_RG}acr.azurecr.io/puclient
 ```
 
 ### Backend - Order Service
 
+To simply deploy the latest tagged image from Docker hub:
+
+```bash
+helm install ./deploy/helm/pumrpmicro --name=order --set image.name=pumrp-order,image.repository=microsoft
+```
+
+**OR**
+To build the image, push to ACR, and deploy the image from ACR:
+
 ```bash
 docker run --rm -v $PWD/OrderSrvc:/project -w /project --name gradle gradle:3.4.1-jdk8-alpine gradle build
 
-docker build -f ./OrderSrvc/Dockerfile --build-arg port=8080 --build-arg mongo_connection=$READY_COSMOSDB -t ${READY_RG}acr.azurecr.io/puorder:v1.0 .
+docker build -f ./OrderSrvc/Dockerfile --build-arg port=8080 --build-arg mongo_connection=$READY_COSMOSDB -t ${READY_RG}acr.azurecr.io/pumrp/pumrp-order:v1.0 .
 
-docker push ${READY_RG}acr.azurecr.io/puorder:v1.0
+docker push ${READY_RG}acr.azurecr.io/pumrp/pumrp-order:v1.0
 
-helm install ./deploy/helm/individual/orderservice --name=order --set image.tag=v1.0,image.repository=${READY_RG}acr.azurecr.io/puorder
+helm install ./deploy/helm/pumrpmicro --name=order --set --set image.name=pumrp-order,image.tag=v1.0,image.repository=${READY_RG}acr.azurecr.io/pumrp
 ```
 
 ### Backend - Catalog Service
 
+To simply deploy the latest tagged image from Docker hub:
+
+```bash
+helm install ./deploy/helm/pumrpmicro --name=catalog --set image.name=pumrp-catalog,image.repository=microsoft
+```
+
+**OR**
+To build the image, push to ACR, and deploy the image from ACR:
+
 ```bash
 docker run --rm -v $PWD/CatalogSrvc:/project -w /project --name gradle gradle:3.4.1-jdk8-alpine gradle build
 
-docker build -f ./CatalogSrvc/Dockerfile --build-arg port=8080 --build-arg mongo_connection=$READY_COSMOSDB -t ${READY_RG}acr.azurecr.io/pucatalog:v1.0 .
+docker build -f ./CatalogSrvc/Dockerfile --build-arg port=8080 --build-arg mongo_connection=$READY_COSMOSDB -t ${READY_RG}acr.azurecr.io/pumrp/pumrp-catalog:v1.0 .
 
-docker push ${READY_RG}acr.azurecr.io/pucatalog:v1.0
+docker push ${READY_RG}acr.azurecr.io/pumrp/pumrp-catalog:v1.0
 
-helm install ./deploy/helm/individual/catalogservice --name=catalog --set image.tag=v1.0,image.repository=${READY_RG}acr.azurecr.io/pucatalog
+helm install ./deploy/helm/pumrpmicro --name=catalog --set image.name=pumrp-catalog,image.tag=v1.0,image.repository=${READY_RG}acr.azurecr.io/pumrp
 ```
 
 ### Backend - Shipment Service
 
+To simply deploy the latest tagged image from Docker hub:
+
+```bash
+helm install ./deploy/helm/pumrpmicro --name=shipment --set image.name=pumrp-shipment,image.repository=microsoft
+```
+
+**OR**
+To build the image, push to ACR, and deploy the image from ACR:
+
 ```bash
 docker run --rm -v $PWD/ShipmentSrvc:/project -w /project --name gradle gradle:3.4.1-jdk8-alpine gradle build
 
-docker build -f ./ShipmentSrvc/Dockerfile --build-arg port=8080 --build-arg mongo_connection=$READY_COSMOSDB -t ${READY_RG}acr.azurecr.io/pushipment:v1.0 .
+docker build -f ./ShipmentSrvc/Dockerfile --build-arg port=8080 --build-arg mongo_connection=$READY_COSMOSDB -t ${READY_RG}acr.azurecr.io/pumrp-shipment:v1.0 .
 
-docker push ${READY_RG}acr.azurecr.io/pushipment:v1.0
+docker push ${READY_RG}acr.azurecr.io/pumrp-shipment:v1.0
 
-helm install ./deploy/helm/individual/shipmentservice --name=shipment --set image.tag=v1.0,image.repository=${READY_RG}acr.azurecr.io/pushipment
+helm install ./deploy/helm/pumrpmicro--name=shipment --set image.name=pumrp-shipment,image.tag=v1.0,image.repository=${READY_RG}acr.azurecr.io/pushipment
 ```
 
 ### Backend - Quote Service
@@ -191,7 +227,7 @@ docker build -f ./QuoteSrvc/Dockerfile --build-arg port=8080 --build-arg mongo_c
 
 docker push ${READY_RG}acr.azurecr.io/puquote:v1.0
 
-helm install ./deploy/helm/individual/quoteservice --name=quote --set image.tag=v1.0,image.repository=${READY_RG}acr.azurecr.io/puquote
+helm install ./deploy/helm/pumrpmicro --name=quote --set image.tag=v1.0,image.repository=${READY_RG}acr.azurecr.io/puquote
 ```
 
 ### Backend - Dealer Service
@@ -201,5 +237,5 @@ docker build --build-arg mongo_connection=$READY_COSMOSDB --build-arg mongo_data
 
 docker push ${READY_RG}acr.azurecr.io/pudealer:v1.0
 
-helm install ./deploy/helm/individual/dealerservice --name=dealer --set image.tag=v1.0,image.repository=${READY_RG}acr.azurecr.io/pudealer
+helm install ./deploy/helm/pumrpmicro --name=dealer --set image.tag=v1.0,image.repository=${READY_RG}acr.azurecr.io/pudealer
 ```
