@@ -7,27 +7,27 @@ trigger:
     - CatalogSrvc/*
 
 steps:
-- task: Gradle@2
-  displayName: 'gradlew build'
-  inputs:
-    gradleWrapperFile: 'CatalogSrvc/gradlew'
-    tasks: 'build'
+# - task: Gradle@2
+#   displayName: 'gradlew build'
+#   inputs:
+#     gradleWrapperFile: 'CatalogSrvc/gradlew'
+#     tasks: 'build'
 
-- task: CopyFiles@2
-  displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
-  inputs:
-    SourceFolder: '$(system.defaultworkingdirectory)'
-    Contents: 'CatalogSrvc/**/*.jar'
-    TargetFolder: '$(build.artifactstagingdirectory)'
+# - task: CopyFiles@2
+#   displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
+#   inputs:
+#     SourceFolder: '$(system.defaultworkingdirectory)'
+#     Contents: 'CatalogSrvc/**/*.jar'
+#     TargetFolder: '$(build.artifactstagingdirectory)'
 
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifact: drop'
-  inputs:
-    PathtoPublish: '$(build.artifactstagingdirectory)'
+# - task: PublishBuildArtifacts@1
+#   displayName: 'Publish Artifact: drop'
+#   inputs:
+#     PathtoPublish: '$(build.artifactstagingdirectory)'
 
 - script: |
     mkdir $(system.defaultworkingdirectory)/project
-    docker run --rm -v $PWD/CatalogSrvc:/project -w $(system.defaultworkingdirectory)/project --name gradle gradle:3.4.1-jdk8-alpine gradle build --stacktrace 
+    docker run --rm -v $(system.defaultworkingdirectory)/CatalogSrvc:/project -w /project --name gradle gradle:3.4.1-jdk8-alpine gradle build --stacktrace 
     displayName: 'Docker build'
 
 # - task: Docker@1
