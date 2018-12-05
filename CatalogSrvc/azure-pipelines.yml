@@ -1,5 +1,7 @@
 trigger:
-  batch: true
+  branches:
+    include:
+    - azure-pipelines
   paths:
     include:
     - CatalogSrvc/*
