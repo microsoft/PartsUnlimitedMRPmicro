@@ -2,17 +2,16 @@ trigger:
   batch: true
   paths:
     include:
-    - CatalogSrvc/*
+    - ShipmentSrvc/*
 
 steps:
 - task: Docker@1
   displayName: 'Docker build'
   inputs:
-    dockerFile: CatalogSrvc/Dockerfile
+    dockerFile: ShipmentSrvc/Dockerfile
     useDefaultContext: false
-    buildContext: CatalogSrvc
-    imageName: '$(ACR_SERVER)/PUMRP-micro/catalog-service:$(Build.BuildId)'
-    includeLatestTag: true
+    buildContext: ShipmentSrvc
+    imageName: '$(ACR_SERVER)/PUMRP-micro/shipment-service:$(Build.BuildId)'
 - task: Docker@1
   displayName: 'Login to ACR'
   inputs:
@@ -23,5 +22,4 @@ steps:
   displayName: 'Docker push to ACR'
   inputs:
     command: 'push'
-    imageName: '$(ACR_SERVER)/PUMRP-micro/catalog-service:$(Build.BuildId)'
-    includeLatestTag: true
+    imageName: '$(ACR_SERVER)/PUMRP-micro/shipment-service:$(Build.BuildId)'
