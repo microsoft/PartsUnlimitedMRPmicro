@@ -26,7 +26,8 @@ steps:
     PathtoPublish: '$(build.artifactstagingdirectory)'
 
 - script: |
-    docker run --rm -v $PWD/CatalogSrvc:/project -w /project --name gradle gradle:3.4.1-jdk8-alpine gradle build --stacktrace
+    docker run --rm -v $PWD/CatalogSrvc:/project -w $(system.defaultworkingdirectory)/project --name gradle gradle:3.4.1-jdk8-alpine gradle build --stacktrace 
+    displayName: 'Docker build'
 
 # - task: Docker@1
 #   displayName: 'Docker build'
