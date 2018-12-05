@@ -176,7 +176,7 @@ cd $READY_PATH
 
 cd PartsUnlimitedMRPmicro
 
-docker run --rm -v $PWD/CatalogSrvc:/project -w /project --name gradle gradle:3.4.1-jdk8-alpine gradle build
+docker run --rm -v $PWD/CatalogSrvc:/project -w /project --name gradle gradle:3.4.1-jdk8-alpine ls -R && gradle build
 
 docker build -f ./CatalogSrvc/Dockerfile --build-arg port=8080 --build-arg mongo_connection=$READY_COSMOSDB -t ${READY_RG}acr.azurecr.io/pucatalog:v1.0 .
 
