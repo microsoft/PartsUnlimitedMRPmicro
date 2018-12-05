@@ -30,3 +30,4 @@ restore.dg
 
 # Node.JS code
 node_modules
+package-lock.json
