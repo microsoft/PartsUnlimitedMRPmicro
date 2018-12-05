@@ -1,0 +1,30 @@
+# Maven
+# Build your Java project and run tests with Apache Maven.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/java
+
+trigger:
+  batch: true
+  paths:
+    include:
+    - CatalogSrvc/*
+
+steps:
+- task: Docker@1
+  displayName: 'Docker build'
+  inputs:
+    dockerFile: CatalogSrvc/Dockerfile
+    useDefaultContext: false
+    buildContext: CatalogSrvc
+    imageName: '$(ACR_SERVER)/PUMRP-micro/catalog-service:$(Build.BuildId)'
+- task: Docker@1
+  displayName: 'Login to ACR'
+  inputs:
+    azureSubscriptionEndpoint: $(SERVICE_CONNECTION)
+    azureContainerRegistry: $(ACR_SERVER)
+    command: login
+- task: Docker@1
+  displayName: 'Docker push to ACR'
+  inputs:
+    command: 'push'
+    imageName: '$(ACR_SERVER)/PUMRP-micro/catalog-service:$(Build.BuildId)'
