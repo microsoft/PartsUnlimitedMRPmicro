@@ -25,23 +25,26 @@ steps:
   inputs:
     PathtoPublish: '$(build.artifactstagingdirectory)'
 
-- task: Docker@1
-  displayName: 'Docker build'
-  inputs:
-    dockerFile: CatalogSrvc/Dockerfile
-    useDefaultContext: false
-    buildContext: CatalogSrvc
-    imageName: '$(ACR_SERVER)/PUMRP-micro/catalog-service:$(Build.BuildId)'
-    includeLatestTag: true
-- task: Docker@1
-  displayName: 'Login to ACR'
-  inputs:
-    azureSubscriptionEndpoint: $(SERVICE_CONNECTION)
-    azureContainerRegistry: $(ACR_SERVER)
-    command: login
-- task: Docker@1
-  displayName: 'Docker push to ACR'
-  inputs:
-    command: 'push'
-    imageName: '$(ACR_SERVER)/PUMRP-micro/catalog-service:$(Build.BuildId)'
-    includeLatestTag: true
+- script: |
+    docker run --rm -v $PWD/CatalogSrvc:/project -w /project --name gradle gradle:3.4.1-jdk8-alpine gradle build
+
+# - task: Docker@1
+#   displayName: 'Docker build'
+#   inputs:
+#     dockerFile: CatalogSrvc/Dockerfile
+#     useDefaultContext: false
+#     buildContext: CatalogSrvc
+#     imageName: '$(ACR_SERVER)/PUMRP-micro/catalog-service:$(Build.BuildId)'
+#     includeLatestTag: true
+# - task: Docker@1
+#   displayName: 'Login to ACR'
+#   inputs:
+#     azureSubscriptionEndpoint: $(SERVICE_CONNECTION)
+#     azureContainerRegistry: $(ACR_SERVER)
+#     command: login
+# - task: Docker@1
+#   displayName: 'Docker push to ACR'
+#   inputs:
+#     command: 'push'
+#     imageName: '$(ACR_SERVER)/PUMRP-micro/catalog-service:$(Build.BuildId)'
+#     includeLatestTag: true
