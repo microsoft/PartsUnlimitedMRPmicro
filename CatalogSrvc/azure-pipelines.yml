@@ -17,7 +17,7 @@ steps:
   displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
   inputs:
     SourceFolder: '$(system.defaultworkingdirectory)'
-    Contents: '**/*.jar'
+    Contents: 'CatalogSrvc/**/*.jar'
     TargetFolder: '$(build.artifactstagingdirectory)'
 
 - task: PublishBuildArtifacts@1
@@ -26,7 +26,7 @@ steps:
     PathtoPublish: '$(build.artifactstagingdirectory)'
 
 - script: |
-    docker run --rm -v $PWD/CatalogSrvc:/project -w /project --name gradle gradle:3.4.1-jdk8-alpine gradle build
+    docker run --rm -v $PWD/CatalogSrvc:/project -w /project --name gradle gradle:3.4.1-jdk8-alpine gradle build -u root
 
 # - task: Docker@1
 #   displayName: 'Docker build'
