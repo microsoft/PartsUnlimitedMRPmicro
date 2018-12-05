@@ -259,5 +259,5 @@ docker build --build-arg mongo_connection=$READY_COSMOSDB --build-arg mongo_data
 
 docker push ${READY_RG}acr.azurecr.io/pumrp/pumrp-dealer:v1.0
 
-helm install ./deploy/helm/pumrpmicro --name=dealer --set image.tag=v1.0,image.repository=${READY_RG}acr.azurecr.io/pudealer
+helm install ./deploy/helm/pumrpmicro --name=dealer --set image.name=pumrp-dealer,image.tag=v1.0,image.repository=${READY_RG}acr.azurecr.io/pumrp
 ```
