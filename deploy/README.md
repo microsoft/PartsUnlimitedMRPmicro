@@ -107,31 +107,7 @@ helm init --upgrade --service-account tillersa
 
 ## Application
 
-### Prometheus and Grafana
-
-```bash
-helm install ./deploy/helm/prometheus --name=prometheus
-
-helm install --name grafana stable/grafana --set server.service.type=LoadBalancer
-```
-
-### Cassandra
-
-```bash
-helm install ./deploy/helm/cassandra --name=cassandradbs
-```
-
-### Zipkin
-
-```bash
-docker run --rm -v $PWD/ZipkinServer:/project -w /project --name gradle gradle:3.4.1-jdk8-alpine gradle build
-
-docker build -f ./ZipkinServer/Dockerfile --build-arg port=9411 -t ${READY_RG}acr.azurecr.io/zipkin:v1.0 .
-
-docker push ${READY_RG}acr.azurecr.io/zipkin:v1.0
-
-helm install ./deploy/helm/zipkinserver --name=zipkin --set image.tag=v1.0,image.repository=${READY_RG}acr.azurecr.io/zipkin
-```
+These are the required steps to get the application and all microservices running.
 
 ### API Gateway
 
