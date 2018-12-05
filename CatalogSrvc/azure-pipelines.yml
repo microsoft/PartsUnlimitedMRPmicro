@@ -10,9 +10,9 @@ steps:
 - task: Gradle@2
   displayName: 'gradlew build'
   inputs:
-    gradleWrapperFile: '$(Parameters.wrapperScript)'
+    gradleWrapperFile: 'gradlew'
     workingDirectory: CatalogSrvc
-    tasks: '$(Parameters.tasks)'
+    tasks: 'build'
 
 - task: CopyFiles@2
   displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
