@@ -11,7 +11,7 @@ If you want to learn on how you can automate the deployment using DevOps practic
 ```bash
 # Variables
 export READY_RG=pumrpmicro
-export READY_LOCATION=westus2
+export READY_LOCATION=eastus2
 export READY_PATH=~/temp/pumrpmicro
 
 # Folder
@@ -57,7 +57,7 @@ echo "Granting Service Princpal " $SP_NAME " access to ACR..."
     az role assignment create --assignee $SP_ID --role Reader --scope $ACR_ID
 )
 
-az aks create -g $READY_RG -n $READY_RG --ssh-key-value $READY_PATH/pumrpmicro.pub --node-count 3 --client-secret $SP_PASS --service-principal $SP_ID -l $READY_LOCATION
+az aks create -g $READY_RG -n $READY_RG --ssh-key-value $READY_PATH/pumrpmicro.pub --node-count 3 -k 1.11.5 --client-secret $SP_PASS --service-principal $SP_ID -l $READY_LOCATION
 
 az aks get-credentials -g $READY_RG -n $READY_RG
 
@@ -83,7 +83,7 @@ Install the node.js mongodb npm package.
 Execute `load_mock_data.js` with your DB information and run it to load your database with mock data:
 
 ```shell
-$ node load_mock_data.js $READY_COSMOSDB_NAME $READY_COSMOSDB_PASS
+$ node ./deploy/load_mock_data.js $READY_COSMOSDB_NAME $READY_COSMOSDB_PASS
 Connected successfully to server
 Records Imported
 ```
@@ -100,7 +100,9 @@ kubectl create secret docker-registry puregistrykey --docker-server=https://${RE
 kubectl create secret generic cosmosdb --from-literal=connection=$READY_COSMOSDB --from-literal=database=${READY_COSMOSDB_NAME}
 
 # Install / Upgrade Helm
-helm init --upgrade
+kubectl create serviceaccount --namespace kube-system tillersa
+kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tillersa
+helm init --upgrade --service-account tillersa
 ```
 
 ## Application
@@ -148,12 +150,14 @@ helm install ./deploy/helm/apigateway --name=api --set image.tag=v1.0,image.repo
 ```bash
 docker run --rm -v $PWD/Web:/project -w /project --name gradle gradle:3.4.1-jdk8-alpine gradle build
 
-docker build -f ./Web/Dockerfile --build-arg port=8080 -t ${READY_RG}acr.azurecr.io/puclient:v1.0 .
+docker build -f ./Web/Dockerfile --build-arg port=8080 -t ${READY_RG}acr.azurecr.io/puclient/pumrp-web:v1.0 .
 
-docker push ${READY_RG}acr.azurecr.io/puclient:v1.0
+docker push ${READY_RG}acr.azurecr.io/puclient/pumrp-web:v1.0
 
-helm install ./deploy/helm/pumrpmicro --name=client --set image.tag=v1.0,image.repository=${READY_RG}acr.azurecr.io/puclient
+helm install ./deploy/helm/pumrpmicro --name=client --set image.tag=v1.0,image.repository=${READY_RG}acr.azurecr.io/puclient/pumrp-web:v1.0
 ```
+
+> Note: The client is served on the `/mrp_client/` path.
 
 ### Backend - Order Service
 
@@ -173,7 +177,7 @@ docker build -f ./OrderSrvc/Dockerfile --build-arg port=8080 --build-arg mongo_c
 
 docker push ${READY_RG}acr.azurecr.io/pumrp/pumrp-order:v1.0
 
-helm install ./deploy/helm/pumrpmicro --name=order --set --set image.name=pumrp-order,image.tag=v1.0,image.repository=${READY_RG}acr.azurecr.io/pumrp
+helm install ./deploy/helm/pumrpmicro --name=order --set image.name=pumrp-order,image.tag=v1.0,image.repository=${READY_RG}acr.azurecr.io/pumrp
 ```
 
 ### Backend - Catalog Service
@@ -211,31 +215,49 @@ To build the image, push to ACR, and deploy the image from ACR:
 ```bash
 docker run --rm -v $PWD/ShipmentSrvc:/project -w /project --name gradle gradle:3.4.1-jdk8-alpine gradle build
 
-docker build -f ./ShipmentSrvc/Dockerfile --build-arg port=8080 --build-arg mongo_connection=$READY_COSMOSDB -t ${READY_RG}acr.azurecr.io/pumrp-shipment:v1.0 .
+docker build -f ./ShipmentSrvc/Dockerfile --build-arg port=8080 --build-arg mongo_connection=$READY_COSMOSDB -t ${READY_RG}acr.azurecr.io/pumrp/pumrp-shipment:v1.0 .
 
-docker push ${READY_RG}acr.azurecr.io/pumrp-shipment:v1.0
+docker push ${READY_RG}acr.azurecr.io/pumrp/pumrp-shipment:v1.0
 
-helm install ./deploy/helm/pumrpmicro--name=shipment --set image.name=pumrp-shipment,image.tag=v1.0,image.repository=${READY_RG}acr.azurecr.io/pushipment
+helm install ./deploy/helm/pumrpmicro --name=shipment --set image.name=pumrp-shipment,image.tag=v1.0,image.repository=${READY_RG}acr.azurecr.io/pumrp
 ```
 
 ### Backend - Quote Service
 
+To simply deploy the latest tagged image from Docker hub:
+
+```bash
+helm install ./deploy/helm/pumrpmicro --name=quote --set image.name=pumrp-quote,image.repository=microsoft
+```
+
+**OR**
+To build the image, push to ACR, and deploy the image from ACR:
+
 ```bash
 docker run --rm -v $PWD/QuoteSrvc:/project -w /project --name gradle gradle:3.4.1-jdk8-alpine gradle build
 
-docker build -f ./QuoteSrvc/Dockerfile --build-arg port=8080 --build-arg mongo_connection=$READY_COSMOSDB -t ${READY_RG}acr.azurecr.io/puquote:v1.0 .
+docker build -f ./QuoteSrvc/Dockerfile --build-arg port=8080 --build-arg mongo_connection=$READY_COSMOSDB -t ${READY_RG}acr.azurecr.io/pumrp/pumrp-quote:v1.0 .
 
-docker push ${READY_RG}acr.azurecr.io/puquote:v1.0
+docker push ${READY_RG}acr.azurecr.io/pumrp/pumrp-quote:v1.0
 
-helm install ./deploy/helm/pumrpmicro --name=quote --set image.tag=v1.0,image.repository=${READY_RG}acr.azurecr.io/puquote
+helm install ./deploy/helm/pumrpmicro --name=quote --set image.name=pumrp-quote,image.tag=v1.0,image.repository=${READY_RG}acr.azurecr.io/pumrp
 ```
 
 ### Backend - Dealer Service
 
-```bash
-docker build --build-arg mongo_connection=$READY_COSMOSDB --build-arg mongo_database=purmp -f DealerService/Dockerfile -t ${READY_RG}acr.azurecr.io/pudealer:v1.0 .
+To simply deploy the latest tagged image from Docker hub:
 
-docker push ${READY_RG}acr.azurecr.io/pudealer:v1.0
+```bash
+helm install ./deploy/helm/pumrpmicro --name=quote --set image.name=pumrp-dealer,image.repository=microsoft
+```
+
+**OR**
+To build the image, push to ACR, and deploy the image from ACR:
+
+```bash
+docker build --build-arg mongo_connection=$READY_COSMOSDB --build-arg mongo_database=purmp -f DealerService/Dockerfile -t ${READY_RG}acr.azurecr.io/pumrp/pumrp-dealer:v1.0 .
+
+docker push ${READY_RG}acr.azurecr.io/pumrp/pumrp-dealer:v1.0
 
 helm install ./deploy/helm/pumrpmicro --name=dealer --set image.tag=v1.0,image.repository=${READY_RG}acr.azurecr.io/pudealer
 ```
