@@ -17,7 +17,6 @@ steps:
   inputs:
     gradleWrapperFile: QuoteSrvc/gradlew
     workingDirectory: QuoteSrvc
-  continueOnError: true
 
 - task: Docker@1
   displayName: 'Build an image'

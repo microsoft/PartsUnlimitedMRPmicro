@@ -1,25 +1,35 @@
+resources:
+- repo: self
+queue:
+  name: Hosted Ubuntu 1604
+  demands: java
 trigger:
-  batch: true
+  branches:
+    include:
+    - azure-pipelines
   paths:
     include:
     - Web/*
 
 steps:
-- task: Docker@1
-  displayName: 'Docker build'
+- task: Gradle@2
+  displayName: 'gradlew build'
   inputs:
-    dockerFile: Web/Dockerfile
-    useDefaultContext: false
-    buildContext: Web
-    imageName: '$(ACR_SERVER)/PUMRP-micro/web:$(Build.BuildId)'
+    gradleWrapperFile: Web/gradlew
+    workingDirectory: Web
+
 - task: Docker@1
-  displayName: 'Login to ACR'
+  displayName: 'Build an image'
   inputs:
     azureSubscriptionEndpoint: $(SERVICE_CONNECTION)
-    azureContainerRegistry: $(ACR_SERVER)
-    command: login
+    azureContainerRegistry: pumrpmicroacr.azurecr.io
+    dockerFile: Web/Dockerfile
+    useDefaultContext: false
+    buildContext: '$(Build.SourcesDirectory)'
+    addDefaultLabels: false
 - task: Docker@1
-  displayName: 'Docker push to ACR'
+  displayName: 'Push an image'
   inputs:
-    command: 'push'
-    imageName: '$(ACR_SERVER)/PUMRP-micro/web:$(Build.BuildId)'
+    azureSubscriptionEndpoint: $(SERVICE_CONNECTION)
+    azureContainerRegistry: pumrpmicroacr.azurecr.io
+    command: push

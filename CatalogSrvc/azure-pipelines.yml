@@ -17,7 +17,6 @@ steps:
   inputs:
     gradleWrapperFile: CatalogSrvc/gradlew
     workingDirectory: CatalogSrvc
-  continueOnError: true
 
 - task: Docker@1
   displayName: 'Build an image'

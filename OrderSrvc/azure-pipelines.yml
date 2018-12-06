@@ -17,7 +17,6 @@ steps:
   inputs:
     gradleWrapperFile: OrderSrvc/gradlew
     workingDirectory: OrderSrvc
-  continueOnError: true
 
 - task: Docker@1
   displayName: 'Build an image'
