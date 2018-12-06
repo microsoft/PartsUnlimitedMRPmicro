@@ -123,11 +123,11 @@ To build the image, push to ACR, and deploy the image from ACR:
 ```bash
 docker run --rm -v $PWD/Web:/project -w /project --name gradle gradle:3.4.1-jdk8-alpine gradle build
 
-docker build -f ./Web/Dockerfile --build-arg port=8080 -t ${READY_RG}acr.azurecr.io/puclient/pumrp-web:v1.0 .
+docker build -f ./Web/Dockerfile --build-arg port=8080 -t ${READY_RG}acr.azurecr.io/pumrp/pumrp-web:v1.0 .
 
-docker push ${READY_RG}acr.azurecr.io/puclient/pumrp-web:v1.0
+docker push ${READY_RG}acr.azurecr.io/pumrp/pumrp-web:v1.0
 
-helm install ./deploy/helm/pumrpmicro --name=client --set labels.tier=frontend,service.type=LoadBalancer,image.name=pumrp-web,image.tag=v1.0,image.repository=${READY_RG}acr.azurecr.io/puclient
+helm install ./deploy/helm/pumrpmicro --name=client --set labels.tier=frontend,service.type=LoadBalancer,image.name=pumrp-web,image.tag=v1.0,image.repository=${READY_RG}acr.azurecr.io/pumrp
 ```
 
 > Note: The client is served on the `/mrp_client/` path.
