@@ -1,0 +1,26 @@
+# Default values for PartsUnlimitedMrp.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+replicaCount: 1
+apiversion:
+  deployment: apps/v1 # for versions 1.8 use apps/v1beta2
+image:
+  repository: mypumrpmicro.azurecr.io/pumrp
+  name: pumrp-web
+  tag: latest
+  pullPolicy: Always
+  imagePullSecrets: puregistrykey
+labels:
+  tier: backend
+  link: PartsUnlimitedMrp
+service:
+  type: ClusterIP
+  externalPort: 80
+  internalPort: 8080
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    memory: 128Mi
+

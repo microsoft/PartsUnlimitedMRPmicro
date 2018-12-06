@@ -1,8 +1,0 @@
-version: "2"
-
-services:
-    puorder:
-        build: .
-        image:  puregistry-on.azurecr.io/puorder:latest
-        ports:
-            - "8080"

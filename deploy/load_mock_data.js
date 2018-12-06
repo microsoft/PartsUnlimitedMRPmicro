@@ -2,9 +2,10 @@
 const MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
 
-const user = 'your_user';
-const pass = encodeURIComponent('your_password');
-const dbName = 'yourdbname';
+var mongopass = process.argv[3] || 'your_password'
+const user = process.argv[2] || 'your_user';
+const pass = encodeURIComponent(mongopass);
+const dbName = process.argv[2] || 'your_db';
 
 // Connection URL
 const url = `mongodb://${user}:${pass}@${dbName}.documents.azure.com:10255/?ssl=true`;
@@ -12,7 +13,7 @@ const url = `mongodb://${user}:${pass}@${dbName}.documents.azure.com:10255/?ssl=
 // Database Name
 
 // Use connect method to connect to the server
-MongoClient.connect(url, function (err, client) {
+MongoClient.connect(url, { useNewUrlParser: true }, function (err, client) {
   assert.equal(null, err);
   console.log("Connected successfully to server");
 
@@ -40,7 +41,7 @@ MongoClient.connect(url, function (err, client) {
     ]
   );
 
-  db.collection("dealers").insert({ "name": "Terry Adams", "address": "17760 Northeast 67th Court, Redmond, WA 98052", "email": "terry@adams.com", "phone": "425-885-6217" });
+  db.collection("dealers").insertOne({ "name": "Terry Adams", "address": "17760 Northeast 67th Court, Redmond, WA 98052", "email": "terry@adams.com", "phone": "425-885-6217" });
   db.collection("quotes").insertMany(
     [
       {
@@ -144,5 +145,6 @@ MongoClient.connect(url, function (err, client) {
       "events": []
     }
   ])
+  console.log("Records Imported");
   client.close();
 });

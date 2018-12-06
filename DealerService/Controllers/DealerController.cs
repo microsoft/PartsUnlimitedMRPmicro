@@ -20,10 +20,10 @@ namespace DealerApi.Controllers
             _log = log;
             log.LogInformation("--------------------------------------------------");
             log.LogInformation("---debug----Creating instance Dealer");
-            log.LogInformation(Environment.GetEnvironmentVariable("mongo_connection"));
+            log.LogInformation(Environment.GetEnvironmentVariable("mongo_conn"));
             log.LogInformation(Environment.GetEnvironmentVariable("mongo_database"));
             log.LogInformation("--------------------------------------------------");
-            objds = new MongoDealersRepository(Environment.GetEnvironmentVariable("mongo_connection"));
+            objds = new MongoDealersRepository(Environment.GetEnvironmentVariable("mongo_conn"));
         }
 
         /// <summary>

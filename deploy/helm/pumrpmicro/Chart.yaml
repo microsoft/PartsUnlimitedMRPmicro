@@ -1,0 +1,9 @@
+apiVersion: v1
+description: A Helm chart for Parts Unlimited MRP all API services
+name: partsunlimitedmrp
+version: 1.0.0
+sources:
+- https://github.com/Microsoft/PartsUnlimitedMRPmicro
+maintainers:
+- name: Parts Unlimited MRP GitHub Team
+engine: gotpl
