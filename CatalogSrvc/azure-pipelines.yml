@@ -1,0 +1,39 @@
+resources:
+- repo: self
+queue:
+  name: Hosted Ubuntu 1604
+  demands: java
+trigger:
+  branches:
+    include:
+    - master
+  paths:
+    include:
+    - CatalogSrvc/*
+
+steps:
+- task: Gradle@2
+  displayName: 'gradlew build'
+  inputs:
+    gradleWrapperFile: CatalogSrvc/gradlew
+    workingDirectory: CatalogSrvc
+
+- task: Docker@1
+  displayName: 'Build an image'
+  inputs:
+    azureSubscriptionEndpoint: $(SERVICE_CONNECTION)
+    azureContainerRegistry: $(ACR_SERVER)
+    imageName: '$(ACR_SERVER)/pumrp/pumrp-catalog:$(Build.BuildNumber)'
+    dockerFile: CatalogSrvc/Dockerfile
+    useDefaultContext: false
+    buildContext: '$(Build.SourcesDirectory)'
+    addDefaultLabels: false
+- task: Docker@1
+  displayName: 'Push an image'
+  inputs:
+    azureSubscriptionEndpoint: $(SERVICE_CONNECTION)
+    azureContainerRegistry: $(ACR_SERVER)
+    imageName: '$(ACR_SERVER)/pumrp/pumrp-catalog:$(Build.BuildNumber)'
+    command: push
+
+

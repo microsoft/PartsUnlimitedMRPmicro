@@ -1,0 +1,37 @@
+resources:
+- repo: self
+queue:
+  name: Hosted Ubuntu 1604
+  demands: java
+trigger:
+  branches:
+    include:
+    - master
+  paths:
+    include:
+    - OrderSrvc/*
+
+steps:
+- task: Gradle@2
+  displayName: 'gradlew build'
+  inputs:
+    gradleWrapperFile: OrderSrvc/gradlew
+    workingDirectory: OrderSrvc
+
+- task: Docker@1
+  displayName: 'Build an image'
+  inputs:
+    azureSubscriptionEndpoint: $(SERVICE_CONNECTION)
+    azureContainerRegistry: $(ACR_SERVER)
+    imageName: '$(ACR_SERVER)/pumrp/pumrp-order:$(Build.BuildNumber)'
+    dockerFile: OrderSrvc/Dockerfile
+    useDefaultContext: false
+    buildContext: '$(Build.SourcesDirectory)'
+    addDefaultLabels: false
+- task: Docker@1
+  displayName: 'Push an image'
+  inputs:
+    azureSubscriptionEndpoint: $(SERVICE_CONNECTION)
+    azureContainerRegistry: $(ACR_SERVER)
+    imageName: '$(ACR_SERVER)/pumrp/pumrp-order:$(Build.BuildNumber)'
+    command: push
