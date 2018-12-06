@@ -31,4 +31,4 @@ steps:
   displayName: 'Push an image'
   inputs:
     azureContainerRegistry: pumrpmicroacr.azurecr.io
-    command: 'Push an image'
+    command: push
