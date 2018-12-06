@@ -23,7 +23,7 @@ steps:
   displayName: 'Build an image'
   inputs:
     azureSubscriptionEndpoint: $(SERVICE_CONNECTION)
-    azureContainerRegistry: pumrpmicroacr.azurecr.io
+    azureContainerRegistry: $(ACR_SERVER)
     dockerFile: Web/Dockerfile
     useDefaultContext: false
     buildContext: '$(Build.SourcesDirectory)'
@@ -32,5 +32,5 @@ steps:
   displayName: 'Push an image'
   inputs:
     azureSubscriptionEndpoint: $(SERVICE_CONNECTION)
-    azureContainerRegistry: pumrpmicroacr.azurecr.io
+    azureContainerRegistry: $(ACR_SERVER)
     command: push
