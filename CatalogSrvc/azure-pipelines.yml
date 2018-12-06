@@ -22,7 +22,6 @@ steps:
 - task: Docker@1
   displayName: 'Build an image'
   inputs:
-    azureSubscriptionEndpoint: 'CSE Americas Dev Crews (3fee811e-11bf-4b5c-9c62-a2f28b517724)'
     azureContainerRegistry: pumrpmicroacr.azurecr.io
     dockerFile: CatalogSrvc/Dockerfile
     useDefaultContext: false
@@ -32,7 +31,6 @@ steps:
 - task: Docker@1
   displayName: 'Push an image'
   inputs:
-    azureSubscriptionEndpoint: 'CSE Americas Dev Crews (3fee811e-11bf-4b5c-9c62-a2f28b517724)'
     azureContainerRegistry: pumrpmicroacr.azurecr.io
     command: 'Push an image'
 
