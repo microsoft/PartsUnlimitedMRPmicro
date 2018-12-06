@@ -17,6 +17,7 @@ steps:
   inputs:
     gradleWrapperFile: Web/gradlew
     workingDirectory: Web
+    publishJUnitResults: false
 
 - task: Docker@1
   displayName: 'Build an image'
