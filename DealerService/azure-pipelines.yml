@@ -12,13 +12,6 @@ trigger:
     - DealerService/*
 
 steps:
-- task: Gradle@2
-  displayName: 'gradlew build'
-  inputs:
-    gradleWrapperFile: DealerService/gradlew
-    workingDirectory: DealerService
-  continueOnError: true
-
 - task: Docker@1
   displayName: 'Build an image'
   inputs:
