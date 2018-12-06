@@ -11,7 +11,7 @@ image:
   pullPolicy: Always
   imagePullSecrets: puregistrykey
 labels:
-  tier: frontend
+  tier: backend
   link: PartsUnlimitedMrp
 service:
   type: ClusterIP

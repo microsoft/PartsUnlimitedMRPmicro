@@ -127,7 +127,7 @@ docker build -f ./Web/Dockerfile --build-arg port=8080 -t ${READY_RG}acr.azurecr
 
 docker push ${READY_RG}acr.azurecr.io/puclient/pumrp-web:v1.0
 
-helm install ./deploy/helm/pumrpmicro --name=client --set service.type=LoadBalancer,image.name=pumrp-web,image.tag=v1.0,image.repository=${READY_RG}acr.azurecr.io/puclient
+helm install ./deploy/helm/pumrpmicro --name=client --set labels.tier=frontend,service.type=LoadBalancer,image.name=pumrp-web,image.tag=v1.0,image.repository=${READY_RG}acr.azurecr.io/puclient
 ```
 
 > Note: The client is served on the `/mrp_client/` path.
