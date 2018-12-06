@@ -1,25 +1,37 @@
+resources:
+- repo: self
+queue:
+  name: Hosted Ubuntu 1604
+  demands: java
 trigger:
-  batch: true
+  branches:
+    include:
+    - azure-pipelines
   paths:
     include:
     - QuoteSrvc/*
 
 steps:
-- task: Docker@1
-  displayName: 'Docker build'
+- task: Gradle@2
+  displayName: 'gradlew build'
   inputs:
+    gradleWrapperFile: QuoteSrvc/gradlew
+    workingDirectory: QuoteSrvc
+  continueOnError: true
+
+- task: Docker@1
+  displayName: 'Build an image'
+  inputs:
+    azureSubscriptionEndpoint: 'CSE Americas Dev Crews (3fee811e-11bf-4b5c-9c62-a2f28b517724)'
+    azureContainerRegistry: pumrpmicroacr.azurecr.io
     dockerFile: QuoteSrvc/Dockerfile
     useDefaultContext: false
-    buildContext: QuoteSrvc
-    imageName: '$(ACR_SERVER)/PUMRP-micro/quote-service:$(Build.BuildId)'
+    buildContext: '$(Build.SourcesDirectory)'
+    addDefaultLabels: false
+
 - task: Docker@1
-  displayName: 'Login to ACR'
+  displayName: 'Push an image'
   inputs:
-    azureSubscriptionEndpoint: $(SERVICE_CONNECTION)
-    azureContainerRegistry: $(ACR_SERVER)
-    command: login
-- task: Docker@1
-  displayName: 'Docker push to ACR'
-  inputs:
-    command: 'push'
-    imageName: '$(ACR_SERVER)/PUMRP-micro/quote-service:$(Build.BuildId)'
+    azureSubscriptionEndpoint: 'CSE Americas Dev Crews (3fee811e-11bf-4b5c-9c62-a2f28b517724)'
+    azureContainerRegistry: pumrpmicroacr.azurecr.io
+    command: 'Push an image'
