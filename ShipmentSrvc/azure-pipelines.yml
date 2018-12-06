@@ -23,6 +23,7 @@ steps:
   inputs:
     azureSubscriptionEndpoint: $(SERVICE_CONNECTION)
     azureContainerRegistry: $(ACR_SERVER)
+    imageName: '$(ACR_SERVER)/pumrp/pumrp-shipment:$(Build.BuildNumber)'
     dockerFile: ShipmentSrvc/Dockerfile
     useDefaultContext: false
     buildContext: '$(Build.SourcesDirectory)'
@@ -32,4 +33,5 @@ steps:
   inputs:
     azureSubscriptionEndpoint: $(SERVICE_CONNECTION)
     azureContainerRegistry: $(ACR_SERVER)
+    imageName: '$(ACR_SERVER)/pumrp/pumrp-shipment:$(Build.BuildNumber)'
     command: push

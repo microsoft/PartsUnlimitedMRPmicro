@@ -17,6 +17,7 @@ steps:
   inputs:
     azureSubscriptionEndpoint: $(SERVICE_CONNECTION)
     azureContainerRegistry: $(ACR_SERVER)
+    imageName: '$(ACR_SERVER)/pumrp/pumrp-dealer:$(Build.BuildNumber)'
     dockerFile: DealerService/Dockerfile
     useDefaultContext: false
     buildContext: '$(Build.SourcesDirectory)'
@@ -26,4 +27,5 @@ steps:
   inputs:
     azureSubscriptionEndpoint: $(SERVICE_CONNECTION)
     azureContainerRegistry: $(ACR_SERVER)
+    imageName: '$(ACR_SERVER)/pumrp/pumrp-dealer:$(Build.BuildNumber)'
     command: push

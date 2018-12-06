@@ -24,6 +24,7 @@ steps:
   inputs:
     azureSubscriptionEndpoint: $(SERVICE_CONNECTION)
     azureContainerRegistry: $(ACR_SERVER)
+    imageName: '$(ACR_SERVER)/pumrp/pumrp-web:$(Build.BuildNumber)'
     dockerFile: Web/Dockerfile
     useDefaultContext: false
     buildContext: '$(Build.SourcesDirectory)'
@@ -33,4 +34,5 @@ steps:
   inputs:
     azureSubscriptionEndpoint: $(SERVICE_CONNECTION)
     azureContainerRegistry: $(ACR_SERVER)
+    imageName: '$(ACR_SERVER)/pumrp/pumrp-web:$(Build.BuildNumber)'
     command: push
