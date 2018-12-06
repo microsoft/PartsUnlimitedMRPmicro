@@ -22,6 +22,7 @@ steps:
 - task: Docker@1
   displayName: 'Build an image'
   inputs:
+    azureSubscriptionEndpoint: $(SERVICE_CONNECTION)
     azureContainerRegistry: pumrpmicroacr.azurecr.io
     dockerFile: ShipmentSrvc/Dockerfile
     useDefaultContext: false
@@ -32,4 +33,4 @@ steps:
   inputs:
     azureSubscriptionEndpoint: $(SERVICE_CONNECTION)
     azureContainerRegistry: pumrpmicroacr.azurecr.io
-    command: 'Push an image'
+    command: push
