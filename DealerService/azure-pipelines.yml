@@ -22,13 +22,8 @@ steps:
     buildContext: '$(Build.SourcesDirectory)'
     addDefaultLabels: false
 - task: Docker@1
-  displayName: 'Login to ACR'
-  inputs:
-    azureSubscriptionEndpoint: $(SERVICE_CONNECTION)
-    azureContainerRegistry: pumrpmicroacr.azurecr.io
-    command: login
-- task: Docker@1
   displayName: 'Push an image'
   inputs:
+    azureSubscriptionEndpoint: $(SERVICE_CONNECTION)
     azureContainerRegistry: pumrpmicroacr.azurecr.io
     command: push
