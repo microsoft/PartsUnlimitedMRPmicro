@@ -109,19 +109,16 @@ helm init --upgrade --service-account tillersa
 
 These are the required steps to get the application and all microservices running.
 
-### API Gateway
+### FrontEnd - Client
+
+To simply deploy the latest tagged image from Docker hub:
 
 ```bash
-docker run --rm -v $PWD/RestAPIGateway:/project -w /project --name gradle gradle:3.4.1-jdk8-alpine gradle build -x test
-
-docker build -f ./RestAPIGateway/Dockerfile --build-arg port=9020 -t ${READY_RG}acr.azurecr.io/pumrp/apigateway:v1.0 .
-
-docker push ${READY_RG}acr.azurecr.io/pumrp/apigateway:v1.0
-
-helm install ./deploy/helm/apigateway --name=api --set image.tag=v1.0,image.repository=${READY_RG}acr.azurecr.io/apigateway
+helm install ./deploy/helm/pumrpmicro --name=web --set service.type=LoadBalancer,image.name=pumrp-web,image.repository=microsoft
 ```
 
-### FrontEnd - Client
+**OR**
+To build the image, push to ACR, and deploy the image from ACR:
 
 ```bash
 docker run --rm -v $PWD/Web:/project -w /project --name gradle gradle:3.4.1-jdk8-alpine gradle build
@@ -130,7 +127,7 @@ docker build -f ./Web/Dockerfile --build-arg port=8080 -t ${READY_RG}acr.azurecr
 
 docker push ${READY_RG}acr.azurecr.io/puclient/pumrp-web:v1.0
 
-helm install ./deploy/helm/pumrpmicro --name=client --set image.tag=v1.0,image.repository=${READY_RG}acr.azurecr.io/puclient/pumrp-web:v1.0
+helm install ./deploy/helm/pumrpmicro --name=client --set service.type=LoadBalancer,image.name=pumrp-web,image.tag=v1.0,image.repository=${READY_RG}acr.azurecr.io/puclient
 ```
 
 > Note: The client is served on the `/mrp_client/` path.
@@ -231,7 +228,7 @@ helm install ./deploy/helm/pumrpmicro --name=quote --set image.name=pumrp-dealer
 To build the image, push to ACR, and deploy the image from ACR:
 
 ```bash
-docker build --build-arg mongo_connection=$READY_COSMOSDB --build-arg mongo_database=purmp -f DealerService/Dockerfile -t ${READY_RG}acr.azurecr.io/pumrp/pumrp-dealer:v1.0 .
+docker build --build-arg mongo_connection=$READY_COSMOSDB -f DealerService/Dockerfile -t ${READY_RG}acr.azurecr.io/pumrp/pumrp-dealer:v1.0 .
 
 docker push ${READY_RG}acr.azurecr.io/pumrp/pumrp-dealer:v1.0
 
