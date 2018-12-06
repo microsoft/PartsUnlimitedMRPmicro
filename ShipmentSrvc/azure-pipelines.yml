@@ -7,8 +7,6 @@ trigger:
   branches:
     include:
     - azure-pipelines
-  pr:
-  - master
   paths:
     include:
     - ShipmentSrvc/*
