@@ -27,7 +27,11 @@ steps:
     useDefaultContext: false
     buildContext: '$(Build.SourcesDirectory)'
     addDefaultLabels: false
-
+- task: Docker@1
+  displayName: 'Login to ACR'
+  inputs:
+    azureSubscriptionEndpoint: $(SERVICE_CONNECTION)
+    command: login
 - task: Docker@1
   displayName: 'Push an image'
   inputs:
