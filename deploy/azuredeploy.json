@@ -91,6 +91,13 @@
       "metadata": {
         "description": "The Azure Cosmos DB account name."
       }
+    },
+    "container_registry_name": {
+      "type": "string",
+      "defaultValue": "[concat(parameters('resourceName'),substring(uniqueString(resourceGroup().id),0,4))]",
+      "metadata": {
+        "description": "The Azure Container Registry (ACR) name."
+      }
     }
   },
   "variables": {
@@ -127,6 +134,22 @@
       "tags": {
         "defaultExperience": "MongoDB"
       }
+    },
+    {
+      "type": "Microsoft.ContainerRegistry/registries",
+      "sku": {
+          "name": "Basic",
+          "tier": "Basic"
+      },
+      "name": "[parameters('container_registry_name')]",
+      "apiVersion": "2017-10-01",
+      "location": "[resourceGroup().location]",
+      "tags": {},
+      "scale": null,
+      "properties": {
+          "adminUserEnabled": true
+      },
+      "dependsOn": []
     },
     {
       "apiVersion": "2018-03-31",
