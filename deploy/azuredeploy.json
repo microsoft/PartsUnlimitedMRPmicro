@@ -18,7 +18,7 @@
     },
     "dnsPrefix": {
         "type": "string",
-        "defaultValue": "[concat(parameters('resourceName'),substring(uniqueString(resourceGroup().id),0,4))]",
+        "defaultValue": "[concat(parameters('resourceName'),substring(uniqueString(subscription().subscriptionId),0,4))]",
         "metadata": {
             "description": "Optional DNS prefix to use with hosted Kubernetes API server FQDN."
         }
@@ -87,14 +87,14 @@
     },
     "databaseAccountName": {
       "type": "string",
-      "defaultValue": "[concat(parameters('resourceName'),substring(uniqueString(resourceGroup().id),0,4))]",
+      "defaultValue": "[concat(parameters('resourceName'),substring(uniqueString(subscription().subscriptionId),0,4))]",
       "metadata": {
         "description": "The Azure Cosmos DB account name."
       }
     },
     "container_registry_name": {
       "type": "string",
-      "defaultValue": "[concat(parameters('resourceName'),substring(uniqueString(resourceGroup().id),0,4))]",
+      "defaultValue": "[concat(parameters('resourceName'),substring(uniqueString(subscription().subscriptionId),0,4))]",
       "metadata": {
         "description": "The Azure Container Registry (ACR) name."
       }
