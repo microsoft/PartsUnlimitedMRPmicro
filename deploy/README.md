@@ -99,8 +99,11 @@ Install the node.js mongodb npm package.
 
 Execute `load_mock_data.js` with your DB information and run it to load your database with mock data.
 
+Fill in the `READY_COSMOSDB_NAME` with the value from this query:
+`az cosmosdb list -g ${READY_RG} --query [].name`
+
 ```bash
-READY_COSMOSDB_NAME=${READY_RG}db
+READY_COSMOSDB_NAME=
 
 READY_COSMOSDB_PASS=$(az cosmosdb list-keys -n $READY_COSMOSDB_NAME -g ${READY_RG} -o tsv --query 'primaryMasterKey')
 
