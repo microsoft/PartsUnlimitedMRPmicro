@@ -1,3 +1,15 @@
 _site
 .sass-cache
 .jekyll-metadata
+CatalogSrvc
+DealerService
+OrderSrvc
+QuoteSrvc
+RestAPIGateway
+ShipmentSrvc
+Web
+ZipkinServer
+build
+deploy
+node_modules
+package-lock.json
