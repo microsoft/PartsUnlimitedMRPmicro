@@ -1,12 +1,20 @@
-# Scripts to deploy the whole environment and the application using bash
+# Deploy the infrastructure and application using az cli
 
-Those steps allow you to deploy the whole environment from your local machine using Docker, AKS, ACR and MongoDB.
+These steps deploy the whole environment from your local machine using Docker, AKS, ACR and MongoDB via the az cli.
 
 If you want to learn on how you can automate the deployment using DevOps practices, you can look at the [Hands on Labs section.](https://microsoft.github.io/PartsUnlimitedMRPmicro/hols/circleci.html)
 
-## Setup prerequisites and variables
+Steps to follow:
 
-### Local Prerequisites
+1. Pre-requisite setup
+2. Create the infrastructure
+3. Prep the AKS cluster
+4. Load the application CosmosDB data
+5. Install the application suite
+
+## 1. Pre-requisite setup
+
+Change `READY_LOCATION` variable to the desired azure datacenter and optionally `READY_RG` and `READY_PATH` variables then execute the script below.
 
 ```bash
 # Variables
@@ -22,20 +30,14 @@ mkdir -p $READY_PATH
 git clone git@github.com:Microsoft/PartsUnlimitedMRPmicro.git
 cd PartsUnlimitedMRPmicro
 
-# SSH Keys
-ssh-keygen -f $READY_PATH/pumrpmicro -t rsa -N ''
-
-# Resource Group on Azure
+# Create a resource group
 az group create -n $READY_RG -l $READY_LOCATION
 ```
 
-### ACR & AKS
+If an SSH key or ServicePrincipal is not already available to use, create it using the steps below:
 
 ```bash
-az acr create -n ${READY_RG}acr -g $READY_RG --sku Basic --admin-enabled -l $READY_LOCATION
-
-az acr login -n ${READY_RG}acr -g $READY_RG
-
+# ServicePrincipal Creation
 echo "Creating ServicePrincipal for AKS Cluster.."
 export SP_JSON=`az ad sp create-for-rbac --role="Contributor"`
 export SP_NAME=`echo $SP_JSON | jq -r '.name'`
@@ -45,52 +47,37 @@ echo "Service Principal Name: " $SP_NAME
 echo "Service Principal Password: " $SP_PASS
 echo "Service Principal Id: " $SP_ID
 
-echo "Retrieving Registry ID..."
+# SSH Keys
+ssh-keygen -f $READY_PATH/pumrpmicro -t rsa -N ''
+```
 
-ACR_ID="$(az acr show -n ${READY_RG}acr -g $READY_RG --query "id" --output tsv)"
+## 2. Create an AKS Cluster, Azure Container Registry (ACR), and CosmosDB
 
-echo "Registry Id:"$ACR_ID
+Use the ssh key and service principal to create the infrastructure using the included ARM template deployed Azure portal or az cli.
 
-echo "Granting Service Princpal " $SP_NAME " access to ACR..."
-(
-    set -x
-    az role assignment create --assignee $SP_ID --role Reader --scope $ACR_ID
-)
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https://raw.githubusercontent.com/Microsoft/PartsUnlimitedMRPmicro/master/deploy/azuredeploy.json" target="_blank">
+    <img src="http://azuredeploy.net/deploybutton.png"/>
+</a>
 
-az aks create -g $READY_RG -n $READY_RG --ssh-key-value $READY_PATH/pumrpmicro.pub --node-count 3 -k 1.11.5 --client-secret $SP_PASS --service-principal $SP_ID -l $READY_LOCATION
+<a href="http://armviz.io/#/?load=https://raw.githubusercontent.com/Microsoft/PartsUnlimitedMRPmicro/master/deploy/azuredeploy.json" target="_blank">
+    <img src="http://armviz.io/visualizebutton.png"/>
+</a>
 
+OR
+
+Modify the `./deploy/azuredeploy.parameters.json` file with the secrets and execute:
+
+```bash
+az group deployment create --resource-group="$READY_RG" --template-file ./deploy/azuredeploy.json --parameters @./deploy/azuredeploy.parameters.json
+```
+
+## 3. Prep the AKS cluster
+
+This gets the kubeconfig, sets the required kubernetes secrets for the applications, and installs helm.
+
+```bash
 az aks get-credentials -g $READY_RG -n $READY_RG
 
-# To get the dashboard
-# az aks browse -g $READY_RG -n $READY_RG
-
-```
-
-### MongoDB Backend using CosmosDB
-
-```bash
-READY_COSMOSDB_NAME=${READY_RG}db
-az cosmosdb create -n $READY_COSMOSDB_NAME -g $READY_RG --kind MongoDB
-
-READY_COSMOSDB_PASS=$(az cosmosdb list-keys -n $READY_COSMOSDB_NAME -g ${READY_RG} -o tsv --query 'primaryMasterKey')
-
-READY_COSMOSDB="mongodb://${READY_COSMOSDB_NAME}:${READY_COSMOSDB_PASS}@${READY_COSMOSDB_NAME}.documents.azure.com:10255/${READY_COSMOSDB_NAME}?ssl=true&replicaSet=globaldb"
-```
-
-Install the node.js mongodb npm package.
-`npm install mongodb`
-
-Execute `load_mock_data.js` with your DB information and run it to load your database with mock data:
-
-```shell
-$ node ./deploy/load_mock_data.js $READY_COSMOSDB_NAME $READY_COSMOSDB_PASS
-Connected successfully to server
-Records Imported
-```
-
-### Prerequisites in the K8s cluster
-
-```bash
 # Add the secrets to be authenticated in the cluster
 READY_ACR_PASSWORD=$(az acr credential show -n ${READY_RG}acr -g ${READY_RG} -o tsv --query 'passwords[0].value')
 
@@ -105,20 +92,59 @@ kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admi
 helm init --upgrade --service-account tillersa
 ```
 
-## Application
+## 4. Load the application CosmosDB data
 
-These are the required steps to get the application and all microservices running.
+Install the node.js mongodb npm package.
+`npm install mongodb`
 
-### FrontEnd - Client
+Execute `load_mock_data.js` with your DB information and run it to load your database with mock data.
 
-To simply deploy the latest tagged image from Docker hub:
+Fill in the `READY_COSMOSDB_NAME` with the value from this query:
+`az cosmosdb list -g ${READY_RG} --query [].name`
+
+```bash
+READY_COSMOSDB_NAME=
+
+READY_COSMOSDB_PASS=$(az cosmosdb list-keys -n $READY_COSMOSDB_NAME -g ${READY_RG} -o tsv --query 'primaryMasterKey')
+
+READY_COSMOSDB="mongodb://${READY_COSMOSDB_NAME}:${READY_COSMOSDB_PASS}@${READY_COSMOSDB_NAME}.documents.azure.com:10255/${READY_COSMOSDB_NAME}?ssl=true&replicaSet=globaldb"
+
+node ./deploy/load_mock_data.js $READY_COSMOSDB_NAME $READY_COSMOSDB_PASS
+```
+
+The result will show:
+
+```bash
+Connected successfully to server
+Records Imported
+```
+
+## 5. Install the application suite
+
+Choose to install the application suite from the public docker hub images OR build and deploy the images to ACR.  Docker hub image installation path is the quickest while the ACR path allows deeper understanding of docker and ACR.
+
+### a. Installation using Docker Hub and helm
 
 ```bash
 helm install ./deploy/helm/pumrpmicro --name=web --set service.type=LoadBalancer,image.name=pumrp-web,image.repository=microsoft
+helm install ./deploy/helm/pumrpmicro --name=order --set image.name=pumrp-order,image.repository=microsoft
+helm install ./deploy/helm/pumrpmicro --name=catalog --set image.name=pumrp-catalog,image.repository=microsoft
+helm install ./deploy/helm/pumrpmicro --name=shipment --set image.name=pumrp-shipment,image.repository=microsoft
+helm install ./deploy/helm/pumrpmicro --name=quote --set image.name=pumrp-quote,image.repository=microsoft
+helm install ./deploy/helm/pumrpmicro --name=dealer --set image.name=pumrp-dealer,image.repository=microsoft
 ```
 
-**OR**
-To build the image, push to ACR, and deploy the image from ACR:
+### b. Installation using ACR
+
+This allows the local machine to push docker images to ACR.
+
+```bash
+az acr login -n ${READY_RG}acr -g $READY_RG
+```
+
+This walks through doing a local build and push of each image to ACR.
+
+### FrontEnd - Client
 
 ```bash
 docker run --rm -v $PWD/Web:/project -w /project --name gradle gradle:3.4.1-jdk8-alpine gradle build
@@ -130,18 +156,7 @@ docker push ${READY_RG}acr.azurecr.io/pumrp/pumrp-web:v1.0
 helm install ./deploy/helm/pumrpmicro --name=client --set labels.tier=frontend,service.type=LoadBalancer,image.name=pumrp-web,image.tag=v1.0,image.repository=${READY_RG}acr.azurecr.io/pumrp
 ```
 
-> Note: The client is served on the `/mrp_client/` path.
-
 ### Backend - Order Service
-
-To simply deploy the latest tagged image from Docker hub:
-
-```bash
-helm install ./deploy/helm/pumrpmicro --name=order --set image.name=pumrp-order,image.repository=microsoft
-```
-
-**OR**
-To build the image, push to ACR, and deploy the image from ACR:
 
 ```bash
 docker run --rm -v $PWD/OrderSrvc:/project -w /project --name gradle gradle:3.4.1-jdk8-alpine gradle build
@@ -155,15 +170,6 @@ helm install ./deploy/helm/pumrpmicro --name=order --set image.name=pumrp-order,
 
 ### Backend - Catalog Service
 
-To simply deploy the latest tagged image from Docker hub:
-
-```bash
-helm install ./deploy/helm/pumrpmicro --name=catalog --set image.name=pumrp-catalog,image.repository=microsoft
-```
-
-**OR**
-To build the image, push to ACR, and deploy the image from ACR:
-
 ```bash
 docker run --rm -v $PWD/CatalogSrvc:/project -w /project --name gradle gradle:3.4.1-jdk8-alpine gradle build
 
@@ -175,15 +181,6 @@ helm install ./deploy/helm/pumrpmicro --name=catalog --set image.name=pumrp-cata
 ```
 
 ### Backend - Shipment Service
-
-To simply deploy the latest tagged image from Docker hub:
-
-```bash
-helm install ./deploy/helm/pumrpmicro --name=shipment --set image.name=pumrp-shipment,image.repository=microsoft
-```
-
-**OR**
-To build the image, push to ACR, and deploy the image from ACR:
 
 ```bash
 docker run --rm -v $PWD/ShipmentSrvc:/project -w /project --name gradle gradle:3.4.1-jdk8-alpine gradle build
@@ -197,15 +194,6 @@ helm install ./deploy/helm/pumrpmicro --name=shipment --set image.name=pumrp-shi
 
 ### Backend - Quote Service
 
-To simply deploy the latest tagged image from Docker hub:
-
-```bash
-helm install ./deploy/helm/pumrpmicro --name=quote --set image.name=pumrp-quote,image.repository=microsoft
-```
-
-**OR**
-To build the image, push to ACR, and deploy the image from ACR:
-
 ```bash
 docker run --rm -v $PWD/QuoteSrvc:/project -w /project --name gradle gradle:3.4.1-jdk8-alpine gradle build
 
@@ -217,15 +205,6 @@ helm install ./deploy/helm/pumrpmicro --name=quote --set image.name=pumrp-quote,
 ```
 
 ### Backend - Dealer Service
-
-To simply deploy the latest tagged image from Docker hub:
-
-```bash
-helm install ./deploy/helm/pumrpmicro --name=quote --set image.name=pumrp-dealer,image.repository=microsoft
-```
-
-**OR**
-To build the image, push to ACR, and deploy the image from ACR:
 
 ```bash
 docker build --build-arg mongo_connection=$READY_COSMOSDB -f DealerService/Dockerfile -t ${READY_RG}acr.azurecr.io/pumrp/pumrp-dealer:v1.0 .
