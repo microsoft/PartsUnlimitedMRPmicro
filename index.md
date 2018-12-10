@@ -20,11 +20,10 @@ This microservices-based application uses entirely open source software includin
 
 All of these labs utilize the application designed to run on top of Kubernetes.  Here are the recommended lab options for starting out:
 
-1. [Deployment to Azure Container Service with Kubernetes using Helm]({{ site.baseurl}}{% post_url 2017-04-24-deploy-acs-kubernetes-helm %}) - this is best to become familiar with ACS and Helm and has the prerequisite steps necessary for any HOL, namely provisioning ACS/K8s, ACR, and DocDB with MongoDB driver.
-1. [CI with CircleCI and Azure Container Registry]({{ site.baseurl}}{% post_url 2017-11-13-circleci %}) - builds and tests all 6 docker images then deploys them to ACR using CircleCI 
-1. Deploy, monitor, and scale using Deis Workflow (Front end website only) - this is best to understand benefits of using Deis workflow.  Only the front-end website is deployed, but offers insight into how things like logging, monitoring, routing, and DevOps practices are made easier versus the more manual implementation route highlighted in the other labs here.
+1. [Deployment to Azure Kubernetes Service using Helm]({{ site.baseurl}}{% post_url 2017-04-24-deploy-aks-kubernetes-helm %}) - These steps deploy the entire application suite onto Azure Kubernetes Service (AKS) and dependent infrastructure (CosmosDB with MongoDB API and Azure Container Registry) using the `az` cli.
+1. [CI with CircleCI and Azure Container Registry]({{ site.baseurl}}{% post_url 2017-11-13-circleci %}) - builds and tests all 6 docker images then deploys them to ACR using CircleCI
 
-After completion of lab 1 or 2 above or essentially all services have been deployed to the Kubernetes cluster, then the following labs are able to be completed in any desired order:
+After completion of lab 1 essentially all services have been deployed to the Kubernetes cluster, then the following labs can be completed in any desired order:
 
 - Implement Fluentd logging
 - Implement Monitoring and Alerts with Prometheus
