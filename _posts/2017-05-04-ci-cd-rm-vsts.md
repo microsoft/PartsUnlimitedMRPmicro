@@ -38,7 +38,7 @@ To add the endpoint, go to Services - Endpoints:
 
   The dialog asks for following details:
   - Connection name: Can be any name for example, ACR Connection
-  - Docker Registry - : This is the logon server URL for Azure Container Registry. Get this url by going to Azure portal and browsing the overview of Azure Container Registry resource created in the [Deploy to ACS with K8s using Helm HOL](https://microsoft.github.io/PartsUnlimitedMRPmicro/hols/deploy-aks-kubernetes-helm.html).
+  - Docker Registry - : This is the logon server URL for Azure Container Registry. Get this url by going to Azure portal and browsing the overview of Azure Container Registry resource created in the [Deploy to AKS with K8s using Helm HOL](https://microsoft.github.io/PartsUnlimitedMRPmicro/hols/deploy-aks-kubernetes-helm.html).
   - Docker ID: Is the username that can be found by navigating to the Azure portal and browsing the Access Keys of Azure Container Registry resource.
   - Password: Is the password that can be found by navigating to the Azure portal and browsing the Access Keys of Azure Container Registry resource.
   - Email: This can be any email address.
