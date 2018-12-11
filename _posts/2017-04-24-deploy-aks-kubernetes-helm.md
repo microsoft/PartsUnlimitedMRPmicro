@@ -24,6 +24,8 @@ These steps deploy the entire application suite onto Azure Kubernetes Service (A
 
 ## Task 1: Pre-requisite setup
 
+Change `READY_LOCATION` variable to the desired azure datacenter and optionally `READY_RG` and `READY_PATH` variables then execute the script below.
+
 ```bash
 # Variables
 export READY_RG=pumrpmicro
@@ -232,3 +234,24 @@ helm install ./deploy/helm/pumrpmicro --name=dealer --set image.name=pumrp-deale
 ## Conclusion
 
 This document covered how to deploy the entire application suite onto the dependent infrastructure Azure Kubernetes Service (AKS), CosmosDB with MongoDB API, and Azure Container Registry.
+
+The front-end website is exposed directly on the AKS cluster which talks to the backend microservices via JSP.  The website can be viewed by first discovering the public IP address created by the web service.
+
+```bash
+kubectl get services
+```
+
+Copy the public IP address from the `pumrp-web-svc` service.
+
+```bash
+NAME                   TYPE           CLUSTER-IP     EXTERNAL-IP       PORT(S)          AGE
+kubernetes             ClusterIP      10.0.0.1       <none>            443/TCP          6d
+pumrp-catalog-svc      ClusterIP      10.0.97.51     <none>            80/TCP           5d
+pumrp-dealer-svc       ClusterIP      10.0.88.207    <none>            80/TCP           4d
+pumrp-order-svc        ClusterIP      10.0.152.39    <none>            80/TCP           6d
+pumrp-quote-svc        ClusterIP      10.0.3.172     <none>            80/TCP           5d
+pumrp-shipment-svc     ClusterIP      10.0.237.80    <none>            80/TCP           5d
+pumrp-web-svc          LoadBalancer   10.0.11.211    40.70.131.108     80:31842/TCP     4d
+```
+
+Visit the website at [http://40.70.131.108/mrp_client/](http://40.70.131.108/mrp_client/)
