@@ -17,7 +17,7 @@ Learn how to setup continuous integration, continuous deployment, and release ma
 1. Ensure that a custom build agent is configured to the VSTS account.  
     Follow [this](https://www.visualstudio.com/en-us/docs/build/actions/agents/v2-linux)
     guide to configure a linux VM as build agent.
-1. Complete Tasks 1-2 of the [Deploy to ACS with K8s using Helm HOL](https://microsoft.github.io/PartsUnlimitedMRPmicro/hols/deploy-acs-kubernetes-helm.html)
+1. Complete Tasks 1-2 of the [Deploy to ACS with K8s using Helm HOL](https://microsoft.github.io/PartsUnlimitedMRPmicro/hols/deploy-aks-kubernetes-helm.html)
 
 ### Tasks Overview
 
@@ -38,7 +38,7 @@ To add the endpoint, go to Services - Endpoints:
 
   The dialog asks for following details:
   - Connection name: Can be any name for example, ACR Connection
-  - Docker Registry - : This is the logon server URL for Azure Container Registry. Get this url by going to Azure portal and browsing the overview of Azure Container Registry resource created in the [Deploy to ACS with K8s using Helm HOL](https://microsoft.github.io/PartsUnlimitedMRPmicro/hols/deploy-acs-kubernetes-helm.html).
+  - Docker Registry - : This is the logon server URL for Azure Container Registry. Get this url by going to Azure portal and browsing the overview of Azure Container Registry resource created in the [Deploy to AKS with K8s using Helm HOL](https://microsoft.github.io/PartsUnlimitedMRPmicro/hols/deploy-aks-kubernetes-helm.html).
   - Docker ID: Is the username that can be found by navigating to the Azure portal and browsing the Access Keys of Azure Container Registry resource.
   - Password: Is the password that can be found by navigating to the Azure portal and browsing the Access Keys of Azure Container Registry resource.
   - Email: This can be any email address.
